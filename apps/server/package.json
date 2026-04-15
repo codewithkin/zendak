@@ -10,10 +10,12 @@
     "start": "bun run dist/index.mjs"
   },
   "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
     "@zendak/db": "workspace:*",
     "@zendak/env": "workspace:*",
     "dotenv": "catalog:",
     "hono": "^4.8.2",
+    "jose": "^6.2.2",
     "zod": "catalog:"
   },
   "devDependencies": {
