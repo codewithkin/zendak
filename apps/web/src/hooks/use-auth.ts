@@ -1,16 +1,14 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api";
+import { useCallback, useEffect, useState } from "react";
+import { apiClient, ApiError } from "@/lib/api";
 
 export interface User {
   id: string;
   email: string;
   name: string;
   role: "ADMIN" | "ACCOUNTANT" | "OPERATIONS" | "DRIVER";
-  phone?: string;
   active: boolean;
-  onboardedAt?: string | null;
   createdAt: string;
 }
 
@@ -19,64 +17,72 @@ export interface LoginInput {
   password: string;
 }
 
-export interface LoginResponse {
+interface LoginResponse {
   user: User;
   token: string;
 }
 
-export interface OnboardingInput {
-  phone: string;
-  [key: string]: string;
-}
-
-/**
- * Fetch current authenticated user
- */
 export function useMe() {
-  return useQuery({
-    queryKey: ["auth", "me"],
-    queryFn: async () => {
-      if (!apiClient.isAuthenticated()) {
-        throw new Error("Not authenticated");
-      }
-      const { data } = await apiClient.http.get<User>("/api/auth/me");
-      return data;
-    },
-    enabled: apiClient.isAuthenticated(),
-    retry: false,
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<ApiError | null>(null);
+
+  useEffect(() => {
+    if (!apiClient.isAuthenticated()) {
+      setIsLoading(false);
+      setError(new ApiError("Not authenticated", 401));
+      return;
+    }
+
+    let cancelled = false;
+    apiClient
+      .get<User>("/api/auth/me")
+      .then((data) => {
+        if (!cancelled) {
+          setUser(data);
+          setIsLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err instanceof ApiError ? err : new ApiError("Network error", 0));
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { user, isLoading, error };
 }
 
-/**
- * Login mutation
- */
 export function useLogin() {
-  return useMutation({
-    mutationFn: async (input: LoginInput) => {
-      const { data } = await apiClient.http.post<LoginResponse>("/api/auth/login", input);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<ApiError | null>(null);
+
+  const login = useCallback(async (input: LoginInput) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await apiClient.post<LoginResponse>("/api/auth/login", input);
       apiClient.setToken(data.token);
       return data;
-    },
-  });
+    } catch (err) {
+      const apiErr = err instanceof ApiError ? err : new ApiError("Network error", 0);
+      setError(apiErr);
+      throw apiErr;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return { login, isLoading, error };
 }
 
-/**
- * Complete onboarding mutation
- */
-export function useOnboarding() {
-  return useMutation({
-    mutationFn: async (input: OnboardingInput) => {
-      const { data } = await apiClient.http.post<User>("/api/auth/onboarding", input);
-      return data;
-    },
-  });
-}
-
-/**
- * Logout helper
- */
 export function useLogout() {
-  return () => {
+  return useCallback(() => {
     apiClient.clearToken();
-  };
+  }, []);
 }
