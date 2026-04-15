@@ -8,10 +8,20 @@
     },
     "name": "zendak",
     "slug": "zendak",
-    "plugins": ["expo-font"],
+    "plugins": [
+      "expo-font"
+    ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "cb0340dc-db4e-4fe9-833e-b1b7aa8cb7bb"
+      }
+    },
+    "android": {
+      "package": "com.christusveritastechnologies.zendak"
     }
   }
 }
