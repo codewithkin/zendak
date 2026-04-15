@@ -3,19 +3,46 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
+import { AppError } from "./lib/errors";
+import { authRoutes } from "./modules/auth/auth.routes";
+import { driversRoutes } from "./modules/drivers/drivers.routes";
+import { expensesRoutes } from "./modules/expenses/expenses.routes";
+import { profitRoutes } from "./modules/profit/profit.routes";
+import { revenueRoutes } from "./modules/revenue/revenue.routes";
+import { tripsRoutes } from "./modules/trips/trips.routes";
+import { trucksRoutes } from "./modules/trucks/trucks.routes";
+
 const app = new Hono();
 
 app.use(logger());
 app.use(
-  "/*",
-  cors({
-    origin: env.CORS_ORIGIN,
-    allowMethods: ["GET", "POST", "OPTIONS"],
-  }),
+	"/*",
+	cors({
+		origin: env.CORS_ORIGIN,
+		allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+	}),
 );
 
 app.get("/", (c) => {
-  return c.text("OK");
+	return c.json({ status: "ok" });
+});
+
+// ─── Module Routes ──────────────────────────────────────
+app.route("/api/auth", authRoutes);
+app.route("/api/trucks", trucksRoutes);
+app.route("/api/drivers", driversRoutes);
+app.route("/api/trips", tripsRoutes);
+app.route("/api/expenses", expensesRoutes);
+app.route("/api/revenue", revenueRoutes);
+app.route("/api/profit", profitRoutes);
+
+// ─── Global Error Handler ───────────────────────────────
+app.onError((err, c) => {
+	if (err instanceof AppError) {
+		return c.json({ error: err.message }, err.statusCode as 400);
+	}
+	console.error("Unhandled error:", err);
+	return c.json({ error: "Internal server error" }, 500);
 });
 
 export default app;
