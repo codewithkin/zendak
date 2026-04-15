@@ -1,0 +1,3 @@
+{
+  "extends": "@zendak/config/tsconfig.base.json"
+}
