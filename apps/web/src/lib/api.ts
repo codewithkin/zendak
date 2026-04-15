@@ -1,64 +1,69 @@
-import axios, { type AxiosInstance } from "axios";
 import { env } from "@zendak/env/web";
 
-export type AuthToken = string | null;
+const TOKEN_KEY = "zendak-auth-token";
 
-class APIClient {
-  private instance: AxiosInstance;
-  private tokenKey = "zendak-auth-token";
+function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(TOKEN_KEY);
+}
 
-  constructor() {
-    this.instance = axios.create({
-      baseURL: env.NEXT_PUBLIC_SERVER_URL,
-      timeout: 10000,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+function setToken(token: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(TOKEN_KEY, token);
+}
 
-    // Request interceptor: attach Bearer token
-    this.instance.interceptors.request.use((config) => {
-      const token = this.getToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    });
+function clearToken(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(TOKEN_KEY);
+}
 
-    // Response interceptor: handle 401
-    this.instance.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          this.clearToken();
-        }
-        throw error;
-      },
-    );
+function isAuthenticated(): boolean {
+  return !!getToken();
+}
+
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...((options.headers as Record<string, string>) ?? {}),
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
   }
 
-  getToken(): AuthToken {
-    if (typeof window === "undefined") return null;
-    return localStorage.getItem(this.tokenKey);
+  const res = await fetch(`${env.NEXT_PUBLIC_SERVER_URL}${path}`, {
+    ...options,
+    headers,
+  });
+
+  if (res.status === 401) {
+    clearToken();
+    throw new ApiError("Unauthorized", 401);
   }
 
-  setToken(token: string): void {
-    if (typeof window === "undefined") return;
-    localStorage.setItem(this.tokenKey, token);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: res.statusText }));
+    throw new ApiError(body.error ?? "Request failed", res.status);
   }
 
-  clearToken(): void {
-    if (typeof window === "undefined") return;
-    localStorage.removeItem(this.tokenKey);
-  }
+  return res.json() as Promise<T>;
+}
 
-  isAuthenticated(): boolean {
-    return !!this.getToken();
-  }
-
-  get http() {
-    return this.instance;
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message);
   }
 }
 
-export const apiClient = new APIClient();
+export const apiClient = {
+  getToken,
+  setToken,
+  clearToken,
+  isAuthenticated,
+  get: <T>(path: string) => request<T>(path),
+  post: <T>(path: string, body: unknown) =>
+    request<T>(path, { method: "POST", body: JSON.stringify(body) }),
+};
