@@ -9,8 +9,10 @@
   },
   "dependencies": {
     "@prisma/client": "catalog:",
+    "@tanstack/react-query": "^5.28.0",
     "@zendak/env": "workspace:*",
     "@zendak/ui": "workspace:*",
+    "axios": "^1.6.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "dotenv": "catalog:",
     "lucide-react": "catalog:",
