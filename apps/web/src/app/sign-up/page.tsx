@@ -8,40 +8,52 @@ import { Button } from "@zendak/ui/components/button";
 import { Input } from "@zendak/ui/components/input";
 import { Label } from "@zendak/ui/components/label";
 
-import { useLogin } from "@/hooks/use-auth";
+import { useSignup } from "@/hooks/use-auth";
 
-export default function SignInPage() {
+export default function SignUpPage() {
   const router = useRouter();
-  const { login, isLoading } = useLogin();
+  const { signup, isLoading } = useSignup();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
-      await login({ email, password });
-      router.replace("/loading");
+      await signup({ name, email, password });
+      router.replace("/loading" as never);
     } catch {
-      toast.error("Invalid email or password");
+      toast.error("Could not create account. Try a different email.");
     }
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm space-y-8">
-        {/* Logo */}
         <div className="flex flex-col items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
             <span className="text-sm font-bold text-primary-foreground">Z</span>
           </div>
-          <h1 className="text-xl font-semibold tracking-tight">Sign in to Zendak</h1>
+          <h1 className="text-xl font-semibold tracking-tight">Create your account</h1>
           <p className="text-sm text-muted-foreground">
-            Enter your credentials to continue
+            Enter your details to get started
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="Your full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              autoComplete="name"
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -64,19 +76,20 @@ export default function SignInPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              autoComplete="current-password"
+              minLength={8}
+              autoComplete="new-password"
             />
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Signing in…" : "Sign in"}
+            {isLoading ? "Creating account…" : "Create account"}
           </Button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <a href="/sign-up" className="text-primary underline-offset-4 hover:underline">
-            Sign up
+          Already have an account?{" "}
+          <a href="/sign-in" className="text-primary underline-offset-4 hover:underline">
+            Sign in
           </a>
         </p>
       </div>

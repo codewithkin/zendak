@@ -17,7 +17,13 @@ export interface LoginInput {
   password: string;
 }
 
-interface LoginResponse {
+export interface SignupInput {
+  email: string;
+  password: string;
+  name: string;
+}
+
+interface AuthResponse {
   user: User;
   token: string;
 }
@@ -66,7 +72,7 @@ export function useLogin() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await apiClient.post<LoginResponse>("/api/auth/login", input);
+      const data = await apiClient.post<AuthResponse>("/api/auth/login", input);
       apiClient.setToken(data.token);
       return data;
     } catch (err) {
@@ -85,4 +91,27 @@ export function useLogout() {
   return useCallback(() => {
     apiClient.clearToken();
   }, []);
+}
+
+export function useSignup() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<ApiError | null>(null);
+
+  const signup = useCallback(async (input: SignupInput) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await apiClient.post<AuthResponse>("/api/auth/signup", input);
+      apiClient.setToken(data.token);
+      return data;
+    } catch (err) {
+      const apiErr = err instanceof ApiError ? err : new ApiError("Network error", 0);
+      setError(apiErr);
+      throw apiErr;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  return { signup, isLoading, error };
 }
