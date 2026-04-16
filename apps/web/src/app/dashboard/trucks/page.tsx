@@ -19,7 +19,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@zendak/ui/components/dialog";
 import { Input } from "@zendak/ui/components/input";
 import { Label } from "@zendak/ui/components/label";
@@ -48,13 +47,12 @@ import { Icon } from "@zendak/ui/components/icon";
 
 import {
   useTrucks,
-  useCreateTruck,
   useUpdateTruck,
   useDeleteTruck,
   type Truck,
-  type CreateTruckInput,
   type UpdateTruckInput,
 } from "@/hooks/use-trucks";
+import { AddTruckDialog } from "@/components/dialogs/add-truck-dialog";
 
 const statusVariant: Record<Truck["status"], "success" | "default" | "warning" | "destructive"> = {
   AVAILABLE: "success",
@@ -65,7 +63,6 @@ const statusVariant: Record<Truck["status"], "success" | "default" | "warning" |
 
 export default function TrucksPage() {
   const { trucks, isLoading, refetch } = useTrucks();
-  const { createTruck, isLoading: creating } = useCreateTruck();
   const { updateTruck, isLoading: updating } = useUpdateTruck();
   const { deleteTruck, isLoading: deleting } = useDeleteTruck();
 
@@ -73,22 +70,11 @@ export default function TrucksPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [editingTruck, setEditingTruck] = useState<Truck | null>(null);
 
-  // Add form state
-  const [plateNumber, setPlateNumber] = useState("");
-  const [model, setModel] = useState("");
-  const [year, setYear] = useState("");
-
   // Edit form state
   const [editPlateNumber, setEditPlateNumber] = useState("");
   const [editModel, setEditModel] = useState("");
   const [editYear, setEditYear] = useState("");
   const [editStatus, setEditStatus] = useState<Truck["status"]>("AVAILABLE");
-
-  function resetAddForm() {
-    setPlateNumber("");
-    setModel("");
-    setYear("");
-  }
 
   function openEdit(truck: Truck) {
     setEditingTruck(truck);
@@ -97,21 +83,6 @@ export default function TrucksPage() {
     setEditYear(truck.year?.toString() ?? "");
     setEditStatus(truck.status);
     setEditOpen(true);
-  }
-
-  async function handleAdd(e: React.FormEvent) {
-    e.preventDefault();
-    const input: CreateTruckInput = { plateNumber, model };
-    if (year) input.year = Number.parseInt(year, 10);
-    try {
-      await createTruck(input);
-      toast.success("Truck added");
-      resetAddForm();
-      setAddOpen(false);
-      refetch();
-    } catch {
-      toast.error("Failed to add truck");
-    }
   }
 
   async function handleEdit(e: React.FormEvent) {
@@ -153,66 +124,10 @@ export default function TrucksPage() {
           </p>
         </div>
 
-        <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogTrigger>
-            <Button size="sm">
+        <Button size="sm" onClick={() => setAddOpen(true)}>
               <Icon icon={AddCircleIcon} className="size-3.5" />
               Add Truck
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <form onSubmit={handleAdd}>
-              <DialogHeader>
-                <DialogTitle>Add Truck</DialogTitle>
-                <DialogDescription>
-                  Register another truck in your Zendak fleet roster.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="mt-4 space-y-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="plateNumber">Plate Number</Label>
-                  <Input
-                    id="plateNumber"
-                    value={plateNumber}
-                    onChange={(e) => setPlateNumber(e.target.value)}
-                    placeholder="ABC-1234"
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="model">Model</Label>
-                  <Input
-                    id="model"
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    placeholder="Volvo FH16"
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="year">Year (optional)</Label>
-                  <Input
-                    id="year"
-                    type="number"
-                    value={year}
-                    onChange={(e) => setYear(e.target.value)}
-                    placeholder="2024"
-                    min={1900}
-                    max={2100}
-                  />
-                </div>
-              </div>
-              <DialogFooter className="mt-6">
-                <DialogClose>
-                  <Button variant="outline" type="button">Cancel</Button>
-                </DialogClose>
-                <Button type="submit" disabled={creating}>
-                  {creating ? "Adding…" : "Add Truck"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
       </div>
 
       <Card>
@@ -344,6 +259,13 @@ export default function TrucksPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Add Truck Dialog (shared with dashboard quick actions) */}
+      <AddTruckDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        onSuccess={refetch}
+      />
     </div>
   );
 }

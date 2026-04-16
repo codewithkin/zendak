@@ -16,7 +16,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@zendak/ui/components/dialog";
 import { Input } from "@zendak/ui/components/input";
 import { Label } from "@zendak/ui/components/label";
@@ -37,41 +36,25 @@ import { Icon } from "@zendak/ui/components/icon";
 
 import {
   useDrivers,
-  useCreateDriver,
   useUpdateDriver,
   type Driver,
-  type CreateDriverInput,
   type UpdateDriverInput,
 } from "@/hooks/use-drivers";
+import { AddDriverDialog } from "@/components/dialogs/add-driver-dialog";
 
 export default function DriversPage() {
   const { drivers, isLoading, refetch } = useDrivers();
-  const { createDriver, isLoading: creating } = useCreateDriver();
   const { updateDriver, isLoading: updating } = useUpdateDriver();
 
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
 
-  // Add form
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [licenseNo, setLicenseNo] = useState("");
-  const [phone, setPhone] = useState("");
+  const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
 
   // Edit form
   const [editName, setEditName] = useState("");
   const [editLicenseNo, setEditLicenseNo] = useState("");
   const [editPhone, setEditPhone] = useState("");
-
-  function resetAddForm() {
-    setName("");
-    setEmail("");
-    setPassword("");
-    setLicenseNo("");
-    setPhone("");
-  }
 
   function openEdit(driver: Driver) {
     setEditingDriver(driver);
@@ -79,21 +62,6 @@ export default function DriversPage() {
     setEditLicenseNo(driver.licenseNo);
     setEditPhone(driver.phone ?? "");
     setEditOpen(true);
-  }
-
-  async function handleAdd(e: React.FormEvent) {
-    e.preventDefault();
-    const input: CreateDriverInput = { name, email, password, licenseNo };
-    if (phone) input.phone = phone;
-    try {
-      await createDriver(input);
-      toast.success("Driver created");
-      resetAddForm();
-      setAddOpen(false);
-      refetch();
-    } catch {
-      toast.error("Failed to create driver");
-    }
   }
 
   async function handleEdit(e: React.FormEvent) {
@@ -124,87 +92,10 @@ export default function DriversPage() {
           </p>
         </div>
 
-        <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogTrigger>
-            <Button size="sm">
+        <Button size="sm" onClick={() => setAddOpen(true)}>
               <Icon icon={AddCircleIcon} className="size-3.5" />
               Add Driver
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <form onSubmit={handleAdd}>
-              <DialogHeader>
-                <DialogTitle>Add Driver</DialogTitle>
-                <DialogDescription>
-                  Create a new driver profile for your logistics workspace.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="mt-4 space-y-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="John Doe"
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="driver@example.com"
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Min 8 characters"
-                    required
-                    minLength={8}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="licenseNo">License Number</Label>
-                  <Input
-                    id="licenseNo"
-                    value={licenseNo}
-                    onChange={(e) => setLicenseNo(e.target.value)}
-                    placeholder="DL-12345"
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="phone">Phone (optional)</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+1 234 567 890"
-                  />
-                </div>
-              </div>
-              <DialogFooter className="mt-6">
-                <DialogClose>
-                  <Button variant="outline" type="button">Cancel</Button>
-                </DialogClose>
-                <Button type="submit" disabled={creating}>
-                  {creating ? "Creating…" : "Create Driver"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
       </div>
 
       <Card>
@@ -306,6 +197,13 @@ export default function DriversPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Add Driver Dialog (shared with dashboard quick actions) */}
+      <AddDriverDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        onSuccess={refetch}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -7,6 +8,7 @@ import {
   CardTitle,
 } from "@zendak/ui/components/card";
 import { Badge } from "@zendak/ui/components/badge";
+import { Button } from "@zendak/ui/components/button";
 import { Skeleton } from "@zendak/ui/components/skeleton";
 import {
   Table,
@@ -19,13 +21,18 @@ import {
 import {
   ChartUpIcon,
   CoinsDollarIcon,
+  DeliveryTruck02Icon,
   Invoice01Icon,
   MapsLocation01Icon,
+  UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@zendak/ui/components/icon";
 
 import { useDashboardStats } from "@/hooks/use-dashboard";
 import { useTrips, type Trip } from "@/hooks/use-trips";
+import { AddDriverDialog } from "@/components/dialogs/add-driver-dialog";
+import { AddTruckDialog } from "@/components/dialogs/add-truck-dialog";
+import { CreateTripDialog } from "@/components/dialogs/create-trip-dialog";
 
 const tripStatusVariant: Record<Trip["status"], "secondary" | "default" | "success" | "outline"> = {
   PLANNED: "secondary",
@@ -46,6 +53,10 @@ export default function AdminDashboard() {
   const { stats, isLoading: statsLoading } = useDashboardStats();
   const { trips, isLoading: tripsLoading } = useTrips();
 
+  const [addDriverOpen, setAddDriverOpen] = useState(false);
+  const [addTruckOpen, setAddTruckOpen] = useState(false);
+  const [createTripOpen, setCreateTripOpen] = useState(false);
+
   const recentTrips = trips.slice(0, 5);
 
   return (
@@ -56,6 +67,41 @@ export default function AdminDashboard() {
           Track the fleet, trip flow, and operating margin from one Zendak workspace.
         </p>
       </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setAddDriverOpen(true)}
+            >
+              <Icon icon={UserGroupIcon} size={14} className="text-muted-foreground" />
+              Add Driver
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setAddTruckOpen(true)}
+            >
+              <Icon icon={DeliveryTruck02Icon} size={14} className="text-muted-foreground" />
+              Add Truck
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setCreateTripOpen(true)}
+            >
+              <Icon icon={MapsLocation01Icon} size={14} className="text-muted-foreground" />
+              Create Trip
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -176,6 +222,10 @@ export default function AdminDashboard() {
           )}
         </CardContent>
       </Card>
+
+      <AddDriverDialog open={addDriverOpen} onOpenChange={setAddDriverOpen} />
+      <AddTruckDialog open={addTruckOpen} onOpenChange={setAddTruckOpen} />
+      <CreateTripDialog open={createTripOpen} onOpenChange={setCreateTripOpen} />
     </div>
   );
 }

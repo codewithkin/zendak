@@ -9,25 +9,6 @@ import {
   Card,
   CardContent,
 } from "@zendak/ui/components/card";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@zendak/ui/components/dialog";
-import { Input } from "@zendak/ui/components/input";
-import { Label } from "@zendak/ui/components/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@zendak/ui/components/select";
 import { Skeleton } from "@zendak/ui/components/skeleton";
 import {
   Table,
@@ -47,15 +28,12 @@ import { Icon } from "@zendak/ui/components/icon";
 
 import {
   useTrips,
-  useCreateTrip,
   useStartTrip,
   useCompleteTrip,
   useSettleTrip,
   type Trip,
-  type CreateTripInput,
 } from "@/hooks/use-trips";
-import { useDrivers } from "@/hooks/use-drivers";
-import { useTrucks } from "@/hooks/use-trucks";
+import { CreateTripDialog } from "@/components/dialogs/create-trip-dialog";
 
 const tripStatusVariant: Record<Trip["status"], "secondary" | "default" | "success" | "outline"> = {
   PLANNED: "secondary",
@@ -66,47 +44,11 @@ const tripStatusVariant: Record<Trip["status"], "secondary" | "default" | "succe
 
 export default function TripsPage() {
   const { trips, isLoading, refetch } = useTrips();
-  const { createTrip, isLoading: creating } = useCreateTrip();
   const { startTrip } = useStartTrip();
   const { completeTrip } = useCompleteTrip();
   const { settleTrip } = useSettleTrip();
-  const { drivers } = useDrivers();
-  const { trucks } = useTrucks();
 
   const [addOpen, setAddOpen] = useState(false);
-
-  // Form state
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
-  const [driverId, setDriverId] = useState("");
-  const [truckId, setTruckId] = useState("");
-  const [distance, setDistance] = useState("");
-  const [notes, setNotes] = useState("");
-
-  function resetForm() {
-    setOrigin("");
-    setDestination("");
-    setDriverId("");
-    setTruckId("");
-    setDistance("");
-    setNotes("");
-  }
-
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    const input: CreateTripInput = { origin, destination, driverId, truckId };
-    if (distance) input.distance = Number.parseFloat(distance);
-    if (notes) input.notes = notes;
-    try {
-      await createTrip(input);
-      toast.success("Trip created");
-      resetForm();
-      setAddOpen(false);
-      refetch();
-    } catch {
-      toast.error("Failed to create trip");
-    }
-  }
 
   async function handleStart(id: string) {
     try {
@@ -150,105 +92,10 @@ export default function TripsPage() {
           </p>
         </div>
 
-        <Dialog open={addOpen} onOpenChange={setAddOpen}>
-          <DialogTrigger>
-            <Button size="sm">
+        <Button size="sm" onClick={() => setAddOpen(true)}>
               <Icon icon={AddCircleIcon} className="size-3.5" />
               Create Trip
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <form onSubmit={handleCreate}>
-              <DialogHeader>
-                <DialogTitle>Create Trip</DialogTitle>
-                <DialogDescription>
-                  Build a new route with the right driver, truck, and delivery context.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="mt-4 space-y-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="origin">Origin</Label>
-                  <Input
-                    id="origin"
-                    value={origin}
-                    onChange={(e) => setOrigin(e.target.value)}
-                    placeholder="City A"
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="destination">Destination</Label>
-                  <Input
-                    id="destination"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    placeholder="City B"
-                    required
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Driver</Label>
-                  <Select value={driverId} onValueChange={(v: string | null) => setDriverId(v ?? "")} required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a driver" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {drivers.map((d) => (
-                        <SelectItem key={d.id} value={d.id}>
-                          {d.user.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Truck</Label>
-                  <Select value={truckId} onValueChange={(v: string | null) => setTruckId(v ?? "")} required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a truck" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableTrucks.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.plateNumber} — {t.model}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="distance">Distance (km, optional)</Label>
-                  <Input
-                    id="distance"
-                    type="number"
-                    value={distance}
-                    onChange={(e) => setDistance(e.target.value)}
-                    placeholder="500"
-                    min={0}
-                    step="0.1"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="notes">Notes (optional)</Label>
-                  <Input
-                    id="notes"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Special instructions"
-                  />
-                </div>
-              </div>
-              <DialogFooter className="mt-6">
-                <DialogClose>
-                  <Button variant="outline" type="button">Cancel</Button>
-                </DialogClose>
-                <Button type="submit" disabled={creating}>
-                  {creating ? "Creating…" : "Create Trip"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
       </div>
 
       <Card>
@@ -328,6 +175,13 @@ export default function TripsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Create Trip Dialog (shared with dashboard quick actions) */}
+      <CreateTripDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        onSuccess={refetch}
+      />
     </div>
   );
 }
