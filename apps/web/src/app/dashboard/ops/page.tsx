@@ -20,7 +20,7 @@ import {
   CheckmarkCircle02Icon,
   DeliveryTruck02Icon,
   MapsLocation01Icon,
-  ToolBoxIcon,
+  ToolboxIcon,
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@zendak/ui/components/icon";
 
@@ -106,7 +106,7 @@ export default function OpsDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Maintenance
             </CardTitle>
-            <Icon icon={ToolBoxIcon} className="text-amber-500" />
+            <Icon icon={ToolboxIcon} className="text-amber-500" />
           </CardHeader>
           <CardContent>
             {trucksLoading ? (

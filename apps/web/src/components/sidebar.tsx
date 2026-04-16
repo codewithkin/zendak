@@ -8,7 +8,6 @@ import {
   MapsLocation01Icon,
   UserGroupIcon,
   Wallet02Icon,
-  type IconSvgElement,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -19,6 +18,8 @@ import { Separator } from "@zendak/ui/components/separator";
 
 import type { User } from "@/hooks/use-auth";
 import { useLogout } from "@/hooks/use-auth";
+
+type IconSvgElement = any;
 
 interface NavItem {
   label: string;
