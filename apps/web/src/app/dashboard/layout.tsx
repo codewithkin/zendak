@@ -1,11 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { Skeleton } from "@zendak/ui/components/skeleton";
 
 import { Sidebar } from "@/components/sidebar";
 import { useMe } from "@/hooks/use-auth";
+import { useRoleGuard } from "@/hooks/use-role-guard";
 
 export default function DashboardLayout({
   children,
@@ -14,6 +15,9 @@ export default function DashboardLayout({
 }) {
   const { user, isLoading, error } = useMe();
   const router = useRouter();
+  const pathname = usePathname();
+
+  useRoleGuard(user, pathname ?? "");
 
   if (isLoading) {
     return (
@@ -43,9 +47,10 @@ export default function DashboardLayout({
     return null;
   }
 
-  return (
-    <div className="flex h-screen flex-col">
-      <header className="flex h-14 items-center justify-between border-b bg-background px-6">
+    if (user.role === "ADMIN" && !user.onboardedAt) {
+      router.replace("/onboarding" as never);
+      return null;
+    }
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
             <span className="text-xs font-bold text-primary-foreground">Z</span>

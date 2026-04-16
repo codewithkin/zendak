@@ -9,6 +9,7 @@ export interface User {
   name: string;
   role: "ADMIN" | "ACCOUNTANT" | "OPERATIONS" | "DRIVER";
   active: boolean;
+  onboardedAt: string | null;
   createdAt: string;
 }
 
