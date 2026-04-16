@@ -16,7 +16,6 @@ export const authService = {
 			email: input.email,
 			password: hashed,
 			name: input.name,
-			role: input.role as "ADMIN" | "ACCOUNTANT" | "OPERATIONS" | "DRIVER" | undefined,
 		});
 
 		const token = await signToken({
@@ -55,6 +54,7 @@ export const authService = {
 				email: user.email,
 				name: user.name,
 				role: user.role,
+				onboardedAt: user.onboardedAt,
 			},
 			token,
 		};

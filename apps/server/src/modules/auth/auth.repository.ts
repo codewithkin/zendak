@@ -1,19 +1,17 @@
 import prisma from "@zendak/db";
-import type { Role } from "@zendak/db/prisma/generated/client";
 
 export const authRepository = {
 	async createUser(data: {
 		email: string;
 		password: string;
 		name: string;
-		role?: Role;
 	}) {
 		return prisma.user.create({
 			data: {
 				email: data.email,
 				password: data.password,
 				name: data.name,
-				role: data.role ?? "DRIVER",
+				role: "ADMIN",
 			},
 			select: {
 				id: true,
@@ -21,6 +19,7 @@ export const authRepository = {
 				name: true,
 				role: true,
 				active: true,
+				onboardedAt: true,
 				createdAt: true,
 			},
 		});
@@ -41,6 +40,7 @@ export const authRepository = {
 				name: true,
 				role: true,
 				active: true,
+				onboardedAt: true,
 				createdAt: true,
 			},
 		});
