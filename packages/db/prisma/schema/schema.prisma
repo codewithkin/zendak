@@ -43,18 +43,21 @@ enum ExpenseType {
 // ─── Auth Models ─────────────────────────────────────────
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(DRIVER)
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String    @id @default(cuid())
+  email       String    @unique
+  password    String
+  name        String
+  role        Role      @default(ADMIN)
+  active      Boolean   @default(true)
+  onboardedAt DateTime?
+  businessId  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   sessions      Session[]
   driver        Driver?
   notifications Notification[]
+  business      Business? @relation(fields: [businessId], references: [id])
 }
 
 model Session {
@@ -65,6 +68,19 @@ model Session {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Business {
+  id            String   @id @default(cuid())
+  name          String
+  location      String
+  truckCount    Int      @default(0)
+  employeeCount Int      @default(0)
+  phone         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users User[]
 }
 
 // ─── Core Operations ────────────────────────────────────
