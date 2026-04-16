@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@hugeicons/core-free-icons": "^4.1.1",
     "@prisma/client": "catalog:",
     "@zendak/env": "workspace:*",
     "@zendak/ui": "workspace:*",

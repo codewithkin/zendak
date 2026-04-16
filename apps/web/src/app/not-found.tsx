@@ -1,10 +1,12 @@
 "use client";
 
+import { Home01Icon, MapsSearchIcon } from "@hugeicons/core-free-icons";
 import { useEffect, useState } from "react";
 
 import Link from "next/link";
 
 import { Button } from "@zendak/ui/components/button";
+import { Icon } from "@zendak/ui/components/icon";
 
 export default function NotFound() {
   const [visible, setVisible] = useState(false);
@@ -21,6 +23,9 @@ export default function NotFound() {
       }`}
     >
       <div className="flex flex-col items-center gap-4 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-primary">
+          <Icon icon={MapsSearchIcon} size={28} />
+        </div>
         <span
           className="select-none font-bold leading-none tracking-tighter text-foreground/[0.04]"
           style={{ fontSize: "clamp(5rem, 20vw, 9rem)" }}
@@ -29,13 +34,16 @@ export default function NotFound() {
           404
         </span>
         <div className="-mt-4 flex flex-col items-center gap-2">
-          <h1 className="text-sm font-semibold text-foreground">Page not found</h1>
+          <h1 className="text-sm font-semibold text-foreground">Route not found</h1>
           <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
-            The page you&apos;re looking for doesn&apos;t exist or has been moved.
+            This Zendak workspace route doesn&apos;t exist, or the logistics view you wanted has moved.
           </p>
         </div>
       </div>
-      <Button render={<Link href="/" />}>Back to home</Button>
+      <Button render={<Link href="/" />}>
+        <Icon icon={Home01Icon} size={16} />
+        Back to home
+      </Button>
     </div>
   );
 }

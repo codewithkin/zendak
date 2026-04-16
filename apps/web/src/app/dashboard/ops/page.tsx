@@ -17,11 +17,12 @@ import {
   TableRow,
 } from "@zendak/ui/components/table";
 import {
-  TruckIcon,
-  CheckCircleIcon,
-  NavigationIcon,
-  WrenchIcon,
-} from "lucide-react";
+  CheckmarkCircle02Icon,
+  DeliveryTruck02Icon,
+  MapsLocation01Icon,
+  ToolBoxIcon,
+} from "@hugeicons/core-free-icons";
+import { Icon } from "@zendak/ui/components/icon";
 
 import { useTrucks } from "@/hooks/use-trucks";
 import { useTrips, type Trip } from "@/hooks/use-trips";
@@ -45,9 +46,9 @@ export default function OpsDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Operations Dashboard</h1>
+        <h1 className="text-lg font-semibold">Fleet Operations</h1>
         <p className="text-xs text-muted-foreground">
-          Fleet management, trip scheduling, and driver assignments.
+          Watch dispatch readiness, live movement, and maintenance pressure across the fleet.
         </p>
       </div>
 
@@ -57,7 +58,7 @@ export default function OpsDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Total Trucks
             </CardTitle>
-            <TruckIcon className="size-4 text-muted-foreground" />
+            <Icon icon={DeliveryTruck02Icon} className="text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {trucksLoading ? (
@@ -73,7 +74,7 @@ export default function OpsDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Available
             </CardTitle>
-            <CheckCircleIcon className="size-4 text-emerald-500" />
+            <Icon icon={CheckmarkCircle02Icon} className="text-emerald-500" />
           </CardHeader>
           <CardContent>
             {trucksLoading ? (
@@ -89,7 +90,7 @@ export default function OpsDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               In Transit
             </CardTitle>
-            <NavigationIcon className="size-4 text-blue-500" />
+            <Icon icon={MapsLocation01Icon} className="text-blue-500" />
           </CardHeader>
           <CardContent>
             {trucksLoading ? (
@@ -105,7 +106,7 @@ export default function OpsDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Maintenance
             </CardTitle>
-            <WrenchIcon className="size-4 text-amber-500" />
+            <Icon icon={ToolBoxIcon} className="text-amber-500" />
           </CardHeader>
           <CardContent>
             {trucksLoading ? (
@@ -119,7 +120,7 @@ export default function OpsDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Active &amp; Planned Trips</CardTitle>
+          <CardTitle>Dispatch Queue</CardTitle>
         </CardHeader>
         <CardContent>
           {tripsLoading ? (
@@ -130,7 +131,7 @@ export default function OpsDashboard() {
             </div>
           ) : activeTrips.length === 0 ? (
             <p className="py-4 text-center text-xs text-muted-foreground">
-              No active or planned trips
+              No active or planned trips are waiting in dispatch.
             </p>
           ) : (
             <Table>

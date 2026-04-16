@@ -37,7 +37,8 @@ import {
   TableHeader,
   TableRow,
 } from "@zendak/ui/components/table";
-import { PlusIcon, TrashIcon } from "lucide-react";
+import { AddCircleIcon, Delete02Icon } from "@hugeicons/core-free-icons";
+import { Icon } from "@zendak/ui/components/icon";
 
 import {
   useExpenses,
@@ -140,14 +141,14 @@ export default function ExpensesPage() {
         <div>
           <h1 className="text-lg font-semibold">Expenses</h1>
           <p className="text-xs text-muted-foreground">
-            Track and manage all expenses
+            Record operating costs tied to trips, trucks, and margin control.
           </p>
         </div>
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger>
             <Button size="sm">
-              <PlusIcon data-icon="inline-start" className="size-3.5" />
+              <Icon icon={AddCircleIcon} className="size-3.5" />
               Add Expense
             </Button>
           </DialogTrigger>
@@ -156,7 +157,7 @@ export default function ExpensesPage() {
               <DialogHeader>
                 <DialogTitle>Add Expense</DialogTitle>
                 <DialogDescription>
-                  Record a new expense entry.
+                  Capture a new operating cost for the fleet or a specific trip.
                 </DialogDescription>
               </DialogHeader>
               <div className="mt-4 space-y-3">
@@ -273,7 +274,7 @@ export default function ExpensesPage() {
             </div>
           ) : expenses.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">
-              No expenses found.
+              No expenses are recorded yet. Log your first cost to track real margins.
             </p>
           ) : (
             <Table>
@@ -318,7 +319,7 @@ export default function ExpensesPage() {
                         onClick={() => handleDelete(expense.id)}
                         disabled={deleting}
                       >
-                        <TrashIcon className="size-3" />
+                        <Icon icon={Delete02Icon} className="size-3" />
                       </Button>
                     </TableCell>
                   </TableRow>

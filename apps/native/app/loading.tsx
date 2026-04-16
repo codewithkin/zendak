@@ -1,18 +1,19 @@
 import { useEffect } from "react";
 
+import { DeliveryTruck02Icon, Loading03Icon } from "@hugeicons/core-free-icons";
 import { router } from "expo-router";
 import { useThemeColor } from "heroui-native";
-import { ActivityIndicator, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
 import { useMe } from "@/src/hooks/use-auth";
 import { apiClient } from "@/src/lib/api";
 
 export default function LoadingScreen() {
   const insets = useSafeAreaInsets();
   const foregroundColor = useThemeColor("foreground");
-  const mutedColor = useThemeColor("muted");
-  const primaryColor = useThemeColor("primary");
 
   const { data: user, isLoading, error } = useMe();
 
@@ -51,14 +52,13 @@ export default function LoadingScreen() {
     checkAuth();
   }, [user, isLoading, error]);
 
-  const getStatusText = async () => {
-    const isAuth = await apiClient.isAuthenticated();
-    if (!isAuth) return "Checking credentials...";
-    if (isLoading) return "Retrieving profile...";
-    if (error) return "Session expired...";
-    if (user && !user.onboardedAt) return "Completing setup...";
-    return "Redirecting...";
-  };
+  const statusText = !user && isLoading
+    ? "Preparing your mobile logistics workspace."
+    : error
+      ? "Session expired. Securing access again."
+      : user && !user.onboardedAt
+        ? "Completing workspace setup."
+        : "Routing you into fleet operations.";
 
   return (
     <View
@@ -71,47 +71,26 @@ export default function LoadingScreen() {
         paddingBottom: insets.bottom,
       }}
     >
-      {/* Branded Content */}
-      <View style={{ alignItems: "center", gap: 32 }}>
-        {/* Zendak Branding */}
-        <View style={{ alignItems: "center", gap: 12 }}>
-          {/* Logo */}
-          <View
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 12,
-              backgroundColor: primaryColor,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{ fontSize: 24, fontWeight: "700", color: "white" }}>Z</Text>
+      <Card className="w-full max-w-sm">
+        <CardContent className="items-center gap-5 p-6">
+          <View className="h-16 w-16 items-center justify-center rounded-xl bg-primary/10">
+            <Icon icon={DeliveryTruck02Icon} color={foregroundColor} size={30} />
           </View>
-
-          {/* Branding Text */}
-          <Text style={{ fontSize: 14, fontWeight: "600", color: foregroundColor }}>
-            Zendak
-          </Text>
-        </View>
-
-        {/* Loading Indicator */}
-        <View style={{ alignItems: "center", gap: 16 }}>
-          <ActivityIndicator size="large" color={primaryColor} />
-
-          {/* Status Text */}
-          <Text
-            style={{
-              fontSize: 13,
-              color: mutedColor,
-              textAlign: "center",
-              maxWidth: 200,
-            }}
-          >
-            Authenticating
-          </Text>
-        </View>
-      </View>
+          <View className="items-center gap-2">
+            <Text className="text-xs font-medium uppercase tracking-[1.8px] text-primary">
+              Zendak Mobile
+            </Text>
+            <CardTitle className="text-center">Preparing operations</CardTitle>
+            <CardDescription className="text-center">
+              {statusText}
+            </CardDescription>
+          </View>
+          <View className="flex-row items-center gap-2 rounded-xl bg-secondary px-3 py-2">
+            <Icon icon={Loading03Icon} className="text-foreground" size={18} />
+            <Text className="text-sm text-foreground">Fleet, trips, and finance are loading.</Text>
+          </View>
+        </CardContent>
+      </Card>
     </View>
   );
 }

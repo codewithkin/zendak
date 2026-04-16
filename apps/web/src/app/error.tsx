@@ -1,10 +1,12 @@
 "use client";
 
+import { AlertCircleIcon, ArrowReloadHorizontalIcon, Home01Icon } from "@hugeicons/core-free-icons";
 import { useEffect, useState } from "react";
 
 import Link from "next/link";
 
 import { Button } from "@zendak/ui/components/button";
+import { Icon } from "@zendak/ui/components/icon";
 
 export default function Error({
   error,
@@ -32,6 +34,9 @@ export default function Error({
       }`}
     >
       <div className="flex flex-col items-center gap-4 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
+          <Icon icon={AlertCircleIcon} size={28} />
+        </div>
         <span
           className="select-none font-bold leading-none tracking-tighter text-destructive/10"
           style={{ fontSize: "clamp(4rem, 15vw, 8rem)" }}
@@ -40,15 +45,19 @@ export default function Error({
           Oops
         </span>
         <div className="-mt-4 flex flex-col items-center gap-2">
-          <h1 className="text-sm font-semibold text-foreground">Something went wrong</h1>
+          <h1 className="text-sm font-semibold text-foreground">Zendak hit an operational snag</h1>
           <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
-            An unexpected error occurred. Please try again or return to the home page.
+            We couldn&apos;t load this part of your logistics workspace. Try again or return to the main command view.
           </p>
         </div>
       </div>
       <div className="flex gap-2">
-        <Button onClick={reset}>Try again</Button>
+        <Button onClick={reset}>
+          <Icon icon={ArrowReloadHorizontalIcon} size={16} />
+          Try again
+        </Button>
         <Button variant="outline" render={<Link href="/" />}>
+          <Icon icon={Home01Icon} size={16} />
           Go home
         </Button>
       </div>

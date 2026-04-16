@@ -37,7 +37,13 @@ import {
   TableHeader,
   TableRow,
 } from "@zendak/ui/components/table";
-import { PlusIcon, PlayIcon, CheckIcon, BanknoteIcon } from "lucide-react";
+import {
+  AddCircleIcon,
+  CheckmarkCircle02Icon,
+  Invoice01Icon,
+  PlayIcon,
+} from "@hugeicons/core-free-icons";
+import { Icon } from "@zendak/ui/components/icon";
 
 import {
   useTrips,
@@ -140,14 +146,14 @@ export default function TripsPage() {
         <div>
           <h1 className="text-lg font-semibold">Trips</h1>
           <p className="text-xs text-muted-foreground">
-            Schedule, track, and settle trips
+            Schedule routes, track movement, and close each delivery cleanly.
           </p>
         </div>
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger>
             <Button size="sm">
-              <PlusIcon data-icon="inline-start" className="size-3.5" />
+              <Icon icon={AddCircleIcon} className="size-3.5" />
               Create Trip
             </Button>
           </DialogTrigger>
@@ -156,7 +162,7 @@ export default function TripsPage() {
               <DialogHeader>
                 <DialogTitle>Create Trip</DialogTitle>
                 <DialogDescription>
-                  Schedule a new trip with driver and truck assignment.
+                  Build a new route with the right driver, truck, and delivery context.
                 </DialogDescription>
               </DialogHeader>
               <div className="mt-4 space-y-3">
@@ -255,7 +261,7 @@ export default function TripsPage() {
             </div>
           ) : trips.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">
-              No trips yet. Create your first trip.
+              No trips are scheduled yet. Create your first route to start moving freight.
             </p>
           ) : (
             <Table>
@@ -290,7 +296,7 @@ export default function TripsPage() {
                             onClick={() => handleStart(trip.id)}
                             title="Start trip"
                           >
-                            <PlayIcon className="size-3" />
+                            <Icon icon={PlayIcon} className="size-3" />
                           </Button>
                         )}
                         {trip.status === "ACTIVE" && (
@@ -300,7 +306,7 @@ export default function TripsPage() {
                             onClick={() => handleComplete(trip.id)}
                             title="Complete trip"
                           >
-                            <CheckIcon className="size-3" />
+                            <Icon icon={CheckmarkCircle02Icon} className="size-3" />
                           </Button>
                         )}
                         {trip.status === "COMPLETED" && (
@@ -310,7 +316,7 @@ export default function TripsPage() {
                             onClick={() => handleSettle(trip.id)}
                             title="Settle trip"
                           >
-                            <BanknoteIcon className="size-3" />
+                            <Icon icon={Invoice01Icon} className="size-3" />
                           </Button>
                         )}
                       </div>

@@ -29,7 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from "@zendak/ui/components/table";
-import { PlusIcon, PencilIcon } from "lucide-react";
+import {
+  AddCircleIcon,
+  PencilEdit02Icon,
+} from "@hugeicons/core-free-icons";
+import { Icon } from "@zendak/ui/components/icon";
 
 import {
   useDrivers,
@@ -116,14 +120,14 @@ export default function DriversPage() {
         <div>
           <h1 className="text-lg font-semibold">Drivers</h1>
           <p className="text-xs text-muted-foreground">
-            Manage your driver roster
+            Maintain the people moving trips, handoffs, and delivery schedules.
           </p>
         </div>
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger>
             <Button size="sm">
-              <PlusIcon data-icon="inline-start" className="size-3.5" />
+              <Icon icon={AddCircleIcon} className="size-3.5" />
               Add Driver
             </Button>
           </DialogTrigger>
@@ -132,7 +136,7 @@ export default function DriversPage() {
               <DialogHeader>
                 <DialogTitle>Add Driver</DialogTitle>
                 <DialogDescription>
-                  Create a new driver account and profile.
+                  Create a new driver profile for your logistics workspace.
                 </DialogDescription>
               </DialogHeader>
               <div className="mt-4 space-y-3">
@@ -213,7 +217,7 @@ export default function DriversPage() {
             </div>
           ) : drivers.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">
-              No drivers yet. Add your first driver to get started.
+              No drivers are assigned yet. Add your first operator to start routing work.
             </p>
           ) : (
             <Table>
@@ -241,7 +245,7 @@ export default function DriversPage() {
                         size="icon-xs"
                         onClick={() => openEdit(driver)}
                       >
-                        <PencilIcon className="size-3" />
+                        <Icon icon={PencilEdit02Icon} className="size-3" />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -259,7 +263,7 @@ export default function DriversPage() {
             <DialogHeader>
               <DialogTitle>Edit Driver</DialogTitle>
               <DialogDescription>
-                Update driver information.
+                Keep driver identity and compliance details current.
               </DialogDescription>
             </DialogHeader>
             <div className="mt-4 space-y-3">

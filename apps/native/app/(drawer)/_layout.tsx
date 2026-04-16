@@ -1,10 +1,11 @@
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { AddCircleIcon, DashboardSquare01Icon, DeliveryTruck02Icon } from "@hugeicons/core-free-icons";
 import { Link } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { useThemeColor } from "heroui-native";
 import React, { useCallback } from "react";
 import { Pressable, Text } from "react-native";
 
+import { Icon } from "@/components/ui/icon";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 function DrawerLayout() {
@@ -29,13 +30,13 @@ function DrawerLayout() {
       <Drawer.Screen
         name="index"
         options={{
-          headerTitle: "Home",
+          headerTitle: "Workspace",
           drawerLabel: ({ color, focused }) => (
-            <Text style={{ color: focused ? color : themeColorForeground }}>Home</Text>
+            <Text style={{ color: focused ? color : themeColorForeground }}>Workspace</Text>
           ),
           drawerIcon: ({ size, color, focused }) => (
-            <Ionicons
-              name="home-outline"
+            <Icon
+              icon={DashboardSquare01Icon}
               size={size}
               color={focused ? color : themeColorForeground}
             />
@@ -45,13 +46,13 @@ function DrawerLayout() {
       <Drawer.Screen
         name="(tabs)"
         options={{
-          headerTitle: "Tabs",
+          headerTitle: "Operations",
           drawerLabel: ({ color, focused }) => (
-            <Text style={{ color: focused ? color : themeColorForeground }}>Tabs</Text>
+            <Text style={{ color: focused ? color : themeColorForeground }}>Operations</Text>
           ),
           drawerIcon: ({ size, color, focused }) => (
-            <MaterialIcons
-              name="border-bottom"
+            <Icon
+              icon={DeliveryTruck02Icon}
               size={size}
               color={focused ? color : themeColorForeground}
             />
@@ -59,7 +60,7 @@ function DrawerLayout() {
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable className="mr-4">
-                <Ionicons name="add-outline" size={24} color={themeColorForeground} />
+                <Icon icon={AddCircleIcon} size={24} color={themeColorForeground} />
               </Pressable>
             </Link>
           ),

@@ -1,6 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
+import { DashboardSquare01Icon, Route02Icon } from "@hugeicons/core-free-icons";
 import { Tabs } from "expo-router";
 import { useThemeColor } from "heroui-native";
+
+import { Icon } from "@/components/ui/icon";
 
 export default function TabLayout() {
   const themeColorForeground = useThemeColor("foreground");
@@ -26,18 +28,18 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Overview",
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-            <Ionicons name="home" size={size} color={color} />
+            <Icon icon={DashboardSquare01Icon} size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="two"
         options={{
-          title: "Explore",
+          title: "Routes",
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-            <Ionicons name="compass" size={size} color={color} />
+            <Icon icon={Route02Icon} size={size} color={color} />
           ),
         }}
       />

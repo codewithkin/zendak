@@ -17,11 +17,12 @@ import {
   TableRow,
 } from "@zendak/ui/components/table";
 import {
-  MapIcon,
-  DollarSignIcon,
-  ReceiptIcon,
-  TrendingUpIcon,
-} from "lucide-react";
+  ChartUpIcon,
+  CoinsDollarIcon,
+  Invoice01Icon,
+  MapsLocation01Icon,
+} from "@hugeicons/core-free-icons";
+import { Icon } from "@zendak/ui/components/icon";
 
 import { useDashboardStats } from "@/hooks/use-dashboard";
 import { useTrips, type Trip } from "@/hooks/use-trips";
@@ -50,9 +51,9 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Admin Dashboard</h1>
+        <h1 className="text-lg font-semibold">Executive Command Center</h1>
         <p className="text-xs text-muted-foreground">
-          Full system access — trucks, drivers, trips, finances, and user management.
+          Track the fleet, trip flow, and operating margin from one Zendak workspace.
         </p>
       </div>
 
@@ -63,7 +64,7 @@ export default function AdminDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Total Trips
             </CardTitle>
-            <MapIcon className="size-4 text-muted-foreground" />
+            <Icon icon={MapsLocation01Icon} className="text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {statsLoading ? (
@@ -79,7 +80,7 @@ export default function AdminDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Total Revenue
             </CardTitle>
-            <DollarSignIcon className="size-4 text-muted-foreground" />
+            <Icon icon={CoinsDollarIcon} className="text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {statsLoading ? (
@@ -97,7 +98,7 @@ export default function AdminDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Total Expenses
             </CardTitle>
-            <ReceiptIcon className="size-4 text-muted-foreground" />
+            <Icon icon={Invoice01Icon} className="text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {statsLoading ? (
@@ -115,7 +116,7 @@ export default function AdminDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Net Profit
             </CardTitle>
-            <TrendingUpIcon className="size-4 text-muted-foreground" />
+            <Icon icon={ChartUpIcon} className="text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {statsLoading ? (
@@ -132,7 +133,7 @@ export default function AdminDashboard() {
       {/* Recent Trips Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Trips</CardTitle>
+          <CardTitle>Recent Freight Movement</CardTitle>
         </CardHeader>
         <CardContent>
           {tripsLoading ? (
@@ -143,7 +144,7 @@ export default function AdminDashboard() {
             </div>
           ) : recentTrips.length === 0 ? (
             <p className="py-4 text-center text-xs text-muted-foreground">
-              No trips yet
+              No trips are flowing through your Zendak network yet.
             </p>
           ) : (
             <Table>

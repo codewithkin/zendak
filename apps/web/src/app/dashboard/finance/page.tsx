@@ -21,11 +21,12 @@ import {
 } from "@zendak/ui/components/table";
 import { Badge } from "@zendak/ui/components/badge";
 import {
-  DollarSignIcon,
-  ReceiptIcon,
-  TrendingUpIcon,
-  PercentIcon,
-} from "lucide-react";
+  ChartUpIcon,
+  CoinsDollarIcon,
+  Invoice01Icon,
+  PercentCircleIcon,
+} from "@hugeicons/core-free-icons";
+import { Icon } from "@zendak/ui/components/icon";
 
 import { useFinanceSummary, useRevenue } from "@/hooks/use-finance";
 import { useExpenses, type Expense } from "@/hooks/use-expenses";
@@ -68,9 +69,9 @@ export default function FinanceDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Finance Overview</h1>
+        <h1 className="text-lg font-semibold">Finance Command</h1>
         <p className="text-xs text-muted-foreground">
-          Revenue, expenses, and profit reports.
+          Monitor revenue capture, operating spend, and margin health across the business.
         </p>
       </div>
 
@@ -103,7 +104,7 @@ export default function FinanceDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Total Revenue
             </CardTitle>
-            <DollarSignIcon className="size-4 text-muted-foreground" />
+            <Icon icon={CoinsDollarIcon} className="text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {summaryLoading ? (
@@ -121,7 +122,7 @@ export default function FinanceDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Total Expenses
             </CardTitle>
-            <ReceiptIcon className="size-4 text-muted-foreground" />
+            <Icon icon={Invoice01Icon} className="text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {summaryLoading ? (
@@ -139,7 +140,7 @@ export default function FinanceDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Net Profit
             </CardTitle>
-            <TrendingUpIcon className="size-4 text-muted-foreground" />
+            <Icon icon={ChartUpIcon} className="text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {summaryLoading ? (
@@ -157,7 +158,7 @@ export default function FinanceDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Margin
             </CardTitle>
-            <PercentIcon className="size-4 text-muted-foreground" />
+            <Icon icon={PercentCircleIcon} className="text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {summaryLoading ? (
@@ -175,7 +176,7 @@ export default function FinanceDashboard() {
         {/* Revenue Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Revenue</CardTitle>
+            <CardTitle>Recent Revenue Flow</CardTitle>
           </CardHeader>
           <CardContent>
             {revenueLoading ? (
@@ -186,7 +187,7 @@ export default function FinanceDashboard() {
               </div>
             ) : revenue.length === 0 ? (
               <p className="py-4 text-center text-xs text-muted-foreground">
-                No revenue records
+                No revenue has been captured in Zendak yet.
               </p>
             ) : (
               <Table>
@@ -220,7 +221,7 @@ export default function FinanceDashboard() {
         {/* Expense Breakdown */}
         <Card>
           <CardHeader>
-            <CardTitle>Expense Breakdown</CardTitle>
+            <CardTitle>Operating Cost Breakdown</CardTitle>
           </CardHeader>
           <CardContent>
             {expensesLoading ? (
@@ -231,7 +232,7 @@ export default function FinanceDashboard() {
               </div>
             ) : Object.keys(expensesByType).length === 0 ? (
               <p className="py-4 text-center text-xs text-muted-foreground">
-                No expenses recorded
+                No operating costs have been recorded yet.
               </p>
             ) : (
               <div className="space-y-3">

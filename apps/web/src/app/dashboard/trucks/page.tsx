@@ -39,7 +39,12 @@ import {
   TableHeader,
   TableRow,
 } from "@zendak/ui/components/table";
-import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
+import {
+  AddCircleIcon,
+  Delete02Icon,
+  PencilEdit02Icon,
+} from "@hugeicons/core-free-icons";
+import { Icon } from "@zendak/ui/components/icon";
 
 import {
   useTrucks,
@@ -144,14 +149,14 @@ export default function TrucksPage() {
         <div>
           <h1 className="text-lg font-semibold">Trucks</h1>
           <p className="text-xs text-muted-foreground">
-            Manage your fleet of trucks
+            Keep your active fleet, equipment status, and road-ready units organized.
           </p>
         </div>
 
         <Dialog open={addOpen} onOpenChange={setAddOpen}>
           <DialogTrigger>
             <Button size="sm">
-              <PlusIcon data-icon="inline-start" className="size-3.5" />
+              <Icon icon={AddCircleIcon} className="size-3.5" />
               Add Truck
             </Button>
           </DialogTrigger>
@@ -160,7 +165,7 @@ export default function TrucksPage() {
               <DialogHeader>
                 <DialogTitle>Add Truck</DialogTitle>
                 <DialogDescription>
-                  Add a new truck to your fleet.
+                  Register another truck in your Zendak fleet roster.
                 </DialogDescription>
               </DialogHeader>
               <div className="mt-4 space-y-3">
@@ -220,7 +225,7 @@ export default function TrucksPage() {
             </div>
           ) : trucks.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">
-              No trucks yet. Add your first truck to get started.
+              No trucks are in your Zendak fleet yet. Add your first unit to start dispatching.
             </p>
           ) : (
             <Table>
@@ -253,7 +258,7 @@ export default function TrucksPage() {
                           size="icon-xs"
                           onClick={() => openEdit(truck)}
                         >
-                          <PencilIcon className="size-3" />
+                          <Icon icon={PencilEdit02Icon} className="size-3" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -261,7 +266,7 @@ export default function TrucksPage() {
                           onClick={() => handleDelete(truck.id)}
                           disabled={deleting || truck.status === "RETIRED"}
                         >
-                          <TrashIcon className="size-3" />
+                          <Icon icon={Delete02Icon} className="size-3" />
                         </Button>
                       </div>
                     </TableCell>
@@ -280,7 +285,7 @@ export default function TrucksPage() {
             <DialogHeader>
               <DialogTitle>Edit Truck</DialogTitle>
               <DialogDescription>
-                Update truck information.
+                Update fleet details before the next dispatch cycle.
               </DialogDescription>
             </DialogHeader>
             <div className="mt-4 space-y-3">

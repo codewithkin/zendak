@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
+import { Home01Icon, MapsSearchIcon } from "@hugeicons/core-free-icons";
 import { Link, Stack } from "expo-router";
-import { Button } from "heroui-native";
 import { Text, View } from "react-native";
 import Animated, {
   Easing,
@@ -12,6 +12,9 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { Container } from "@/components/container";
+import { Button, ButtonLabel } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { Icon } from "@/components/ui/icon";
 
 export default function NotFoundScreen() {
   const opacity = useSharedValue(0);
@@ -32,27 +35,29 @@ export default function NotFoundScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Container isScrollable={false}>
         <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
-          <Animated.View style={[animStyle, { alignItems: "center", gap: 16 }]}>
-            <Text
-              style={{ fontSize: 96, fontWeight: "700", opacity: 0.05, lineHeight: 96 }}
-              aria-hidden="true"
-            >
-              404
-            </Text>
-            <View style={{ alignItems: "center", gap: 8, marginTop: -16 }}>
-              <Text className="text-base font-semibold text-foreground">Page not found</Text>
-              <Text
-                className="text-sm text-muted text-center"
-                style={{ maxWidth: 280 }}
-              >
-                The page you&apos;re looking for doesn&apos;t exist.
-              </Text>
-            </View>
+          <Animated.View style={[animStyle, { width: "100%", maxWidth: 360 }]}> 
+            <Card>
+              <CardContent className="items-center gap-4 p-6">
+                <View className="h-14 w-14 items-center justify-center rounded-xl bg-secondary">
+                  <Icon icon={MapsSearchIcon} className="text-foreground" size={26} />
+                </View>
+                <View className="items-center gap-2">
+                  <Text className="text-xs font-medium uppercase tracking-[1.8px] text-primary">
+                    Route Missing
+                  </Text>
+                  <CardTitle className="text-center">This screen is off the map</CardTitle>
+                  <CardDescription className="text-center">
+                    This Zendak mobile route doesn&apos;t exist in your logistics workspace.
+                  </CardDescription>
+                </View>
+              </CardContent>
+            </Card>
           </Animated.View>
           <Animated.View style={[animStyle, { marginTop: 32 }]}>
             <Link href="/" asChild>
               <Button size="sm">
-                <Button.Label>Go home</Button.Label>
+                <Icon icon={Home01Icon} className="text-primary-foreground" size={18} />
+                <ButtonLabel>Return to workspace</ButtonLabel>
               </Button>
             </Link>
           </Animated.View>

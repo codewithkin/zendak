@@ -1,18 +1,20 @@
 "use client";
 
 import {
-  LayoutDashboardIcon,
-  TruckIcon,
-  UsersIcon,
-  MapIcon,
-  ReceiptIcon,
-  DollarSignIcon,
-  LogOutIcon,
-} from "lucide-react";
+  DashboardSquare01Icon,
+  DeliveryTruck02Icon,
+  Invoice01Icon,
+  Logout01Icon,
+  MapsLocation01Icon,
+  UserGroupIcon,
+  Wallet02Icon,
+  type IconSvgElement,
+} from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { Button } from "@zendak/ui/components/button";
+import { Icon } from "@zendak/ui/components/icon";
 import { Separator } from "@zendak/ui/components/separator";
 
 import type { User } from "@/hooks/use-auth";
@@ -21,16 +23,16 @@ import { useLogout } from "@/hooks/use-auth";
 interface NavItem {
   label: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: IconSvgElement;
 }
 
 const allNavItems: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
-  { label: "Trucks", href: "/dashboard/trucks", icon: TruckIcon },
-  { label: "Drivers", href: "/dashboard/drivers", icon: UsersIcon },
-  { label: "Trips", href: "/dashboard/trips", icon: MapIcon },
-  { label: "Expenses", href: "/dashboard/expenses", icon: ReceiptIcon },
-  { label: "Finance", href: "/dashboard/finance", icon: DollarSignIcon },
+  { label: "Dashboard", href: "/dashboard", icon: DashboardSquare01Icon },
+  { label: "Trucks", href: "/dashboard/trucks", icon: DeliveryTruck02Icon },
+  { label: "Drivers", href: "/dashboard/drivers", icon: UserGroupIcon },
+  { label: "Trips", href: "/dashboard/trips", icon: MapsLocation01Icon },
+  { label: "Expenses", href: "/dashboard/expenses", icon: Invoice01Icon },
+  { label: "Finance", href: "/dashboard/finance", icon: Wallet02Icon },
 ];
 
 function getNavItems(role: User["role"]): NavItem[] {
@@ -66,10 +68,23 @@ export function Sidebar({ user }: { user: User }) {
   }
 
   return (
-    <aside className="hidden w-56 flex-col border-r bg-muted/30 md:flex">
+    <aside className="hidden w-64 flex-col border-r bg-muted/30 md:flex">
+      <div className="space-y-2 px-4 py-5">
+        <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background px-3 py-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <Icon icon={DeliveryTruck02Icon} size={20} />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">Zendak</p>
+            <p className="text-[11px] text-muted-foreground">
+              Logistics business control center
+            </p>
+          </div>
+        </div>
+      </div>
       <nav className="flex-1 space-y-1 p-3">
         <p className="mb-2 px-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-          Navigation
+          Workspace
         </p>
         {navItems.map((item) => {
           const isActive =
@@ -85,13 +100,13 @@ export function Sidebar({ user }: { user: User }) {
             <Link
               key={item.href}
               href={item.href as never}
-              className={`flex items-center gap-2.5 rounded-none px-2 py-1.5 text-xs font-medium transition-colors ${
+              className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium transition-colors ${
                 isActive
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
-              <item.icon className="size-4" />
+              <Icon icon={item.icon} size={16} />
               {item.label}
             </Link>
           );
@@ -103,14 +118,17 @@ export function Sidebar({ user }: { user: User }) {
         <div className="mb-2 px-2">
           <p className="truncate text-xs font-medium">{user.name}</p>
           <p className="truncate text-[10px] text-muted-foreground">{user.email}</p>
+          <p className="mt-1 text-[10px] text-muted-foreground">
+            Managing fleet, trips, and revenue in one place.
+          </p>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start gap-2"
+          className="w-full justify-start gap-2 rounded-xl"
           onClick={handleLogout}
         >
-          <LogOutIcon className="size-3.5" />
+          <Icon icon={Logout01Icon} size={15} />
           Sign out
         </Button>
       </div>

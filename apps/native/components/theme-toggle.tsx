@@ -1,12 +1,10 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Moon01Icon, Sun01Icon } from "@hugeicons/core-free-icons";
 import * as Haptics from "expo-haptics";
 import { Platform, Pressable } from "react-native";
 import Animated, { FadeOut, ZoomIn } from "react-native-reanimated";
-import { withUniwind } from "uniwind";
 
+import { Icon } from "@/components/ui/icon";
 import { useAppTheme } from "@/contexts/app-theme-context";
-
-const StyledIonicons = withUniwind(Ionicons);
 
 export function ThemeToggle() {
   const { toggleTheme, isLight } = useAppTheme();
@@ -23,11 +21,11 @@ export function ThemeToggle() {
     >
       {isLight ? (
         <Animated.View key="moon" entering={ZoomIn} exiting={FadeOut}>
-          <StyledIonicons name="moon" size={20} className="text-foreground" />
+          <Icon icon={Moon01Icon} className="text-foreground" size={20} />
         </Animated.View>
       ) : (
         <Animated.View key="sun" entering={ZoomIn} exiting={FadeOut}>
-          <StyledIonicons name="sunny" size={20} className="text-foreground" />
+          <Icon icon={Sun01Icon} className="text-foreground" size={20} />
         </Animated.View>
       )}
     </Pressable>

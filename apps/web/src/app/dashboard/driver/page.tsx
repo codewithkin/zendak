@@ -16,7 +16,13 @@ import {
   TableHeader,
   TableRow,
 } from "@zendak/ui/components/table";
-import { MapIcon, PlayIcon, CheckIcon, ClockIcon } from "lucide-react";
+import {
+  CheckmarkCircle02Icon,
+  Loading03Icon,
+  MapsLocation01Icon,
+  PlayIcon,
+} from "@hugeicons/core-free-icons";
+import { Icon } from "@zendak/ui/components/icon";
 
 import { useTrips, type Trip } from "@/hooks/use-trips";
 
@@ -39,9 +45,9 @@ export default function DriverDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Driver Dashboard</h1>
+        <h1 className="text-lg font-semibold">Driver Workspace</h1>
         <p className="text-xs text-muted-foreground">
-          Your assigned trips, truck status, and activity.
+          Keep your assigned routes, trip progress, and delivery rhythm in view.
         </p>
       </div>
 
@@ -51,7 +57,7 @@ export default function DriverDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Total Trips
             </CardTitle>
-            <MapIcon className="size-4 text-muted-foreground" />
+            <Icon icon={MapsLocation01Icon} className="text-muted-foreground" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -67,7 +73,7 @@ export default function DriverDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Active
             </CardTitle>
-            <PlayIcon className="size-4 text-blue-500" />
+            <Icon icon={PlayIcon} className="text-blue-500" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -83,7 +89,7 @@ export default function DriverDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Planned
             </CardTitle>
-            <ClockIcon className="size-4 text-amber-500" />
+            <Icon icon={Loading03Icon} className="text-amber-500" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -99,7 +105,7 @@ export default function DriverDashboard() {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Completed
             </CardTitle>
-            <CheckIcon className="size-4 text-emerald-500" />
+            <Icon icon={CheckmarkCircle02Icon} className="text-emerald-500" />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -113,7 +119,7 @@ export default function DriverDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>My Trips</CardTitle>
+          <CardTitle>Assigned Routes</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -124,7 +130,7 @@ export default function DriverDashboard() {
             </div>
           ) : trips.length === 0 ? (
             <p className="py-4 text-center text-xs text-muted-foreground">
-              No trips assigned
+              No trips are assigned to your Zendak driver workspace yet.
             </p>
           ) : (
             <Table>
