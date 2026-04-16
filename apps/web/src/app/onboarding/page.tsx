@@ -4,7 +4,7 @@ import {
   BuildingIcon,
   DeliveryTruck02Icon,
   LocationAdd01Icon,
-  PhoneCallIcon,
+  PhoneCall,
   UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { useRouter } from "next/navigation";
@@ -157,7 +157,7 @@ export default function OnboardingPage() {
           {/* Phone */}
           <div className="space-y-2">
             <Label htmlFor="phone" className="flex items-center gap-2">
-              <Icon icon={PhoneCallIcon} size={14} className="text-muted-foreground" />
+              <Icon icon={PhoneCall} size={14} className="text-muted-foreground" />
               Business phone
               <span className="text-muted-foreground/60">(optional)</span>
             </Label>
