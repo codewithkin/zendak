@@ -47,10 +47,14 @@ export default function DashboardLayout({
     return null;
   }
 
-    if (user.role === "ADMIN" && !user.onboardedAt) {
-      router.replace("/onboarding" as never);
-      return null;
-    }
+  if (user.role === "ADMIN" && !user.onboardedAt) {
+    router.replace("/onboarding" as never);
+    return null;
+  }
+
+  return (
+    <div className="flex h-screen flex-col">
+      <header className="flex h-14 items-center justify-between border-b bg-background px-6">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
             <span className="text-xs font-bold text-primary-foreground">Z</span>
