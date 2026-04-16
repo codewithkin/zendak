@@ -5,7 +5,29 @@ import { useEffect } from "react";
 
 import type { User } from "./use-auth";
 
-const ROLE_ROUTES: Record<User["role"], string> = {
+// Define allowed pages for each role based on sidebar navigation
+const ALLOWED_PAGES: Record<User["role"], string[]> = {
+  ADMIN: [
+    "/dashboard",
+    "/dashboard/admin",
+    "/dashboard/trucks",
+    "/dashboard/drivers",
+    "/dashboard/trips",
+    "/dashboard/expenses",
+    "/dashboard/finance",
+  ],
+  ACCOUNTANT: ["/dashboard", "/dashboard/expenses", "/dashboard/finance"],
+  OPERATIONS: [
+    "/dashboard",
+    "/dashboard/ops",
+    "/dashboard/trucks",
+    "/dashboard/drivers",
+    "/dashboard/trips",
+  ],
+  DRIVER: ["/dashboard", "/dashboard/driver", "/dashboard/trips"],
+};
+
+const DEFAULT_ROUTES: Record<User["role"], string> = {
   ADMIN: "/dashboard/admin",
   ACCOUNTANT: "/dashboard/finance",
   OPERATIONS: "/dashboard/ops",
@@ -13,7 +35,7 @@ const ROLE_ROUTES: Record<User["role"], string> = {
 };
 
 /**
- * Redirect the user away if they land on a dashboard route they don't own.
+ * Redirect the user away if they try to access a page not allowed for their role.
  * e.g. DRIVER trying to visit /dashboard/admin → redirected to /dashboard/driver
  */
 export function useRoleGuard(user: User | null, currentPath: string) {
@@ -22,22 +44,17 @@ export function useRoleGuard(user: User | null, currentPath: string) {
   useEffect(() => {
     if (!user) return;
 
-    const allowed = ROLE_ROUTES[user.role];
+    const allowedPages = ALLOWED_PAGES[user.role];
+    const defaultRoute = DEFAULT_ROUTES[user.role];
 
-    // Only enforce protection on role-specific dashboard pages
-    const guardedPrefixes = [
-      "/dashboard/admin",
-      "/dashboard/finance",
-      "/dashboard/ops",
-      "/dashboard/driver",
-    ];
+    // Check if current path is allowed for this role
+    const isAllowed = allowedPages.some(
+      (page) => currentPath === page || currentPath.startsWith(page + "/"),
+    );
 
-    const isGuarded = guardedPrefixes.some((prefix) => currentPath.startsWith(prefix));
-    if (!isGuarded) return;
-
-    const isAllowed = currentPath.startsWith(allowed);
+    // If not allowed, redirect to default route for this role
     if (!isAllowed) {
-      router.replace(allowed as never);
+      router.replace(defaultRoute as never);
     }
   }, [user, currentPath, router]);
 }
