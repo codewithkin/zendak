@@ -32,21 +32,19 @@ export function AddDriverDialog({ open, onOpenChange, onSuccess }: AddDriverDial
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [licenseNo, setLicenseNo] = useState("");
   const [phone, setPhone] = useState("");
 
   function reset() {
     setName("");
     setEmail("");
-    setPassword("");
     setLicenseNo("");
     setPhone("");
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const input: CreateDriverInput = { name, email, password, licenseNo };
+    const input: CreateDriverInput = { name, email, licenseNo };
     if (phone) input.phone = phone;
     try {
       await createDriver(input);
@@ -66,7 +64,7 @@ export function AddDriverDialog({ open, onOpenChange, onSuccess }: AddDriverDial
           <DialogHeader>
             <DialogTitle>Add Driver</DialogTitle>
             <DialogDescription>
-              Create a new driver profile for your logistics workspace.
+              Create a new driver profile. A secure password will be auto-generated and sent to their email.
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-3">
@@ -89,18 +87,6 @@ export function AddDriverDialog({ open, onOpenChange, onSuccess }: AddDriverDial
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="driver@example.com"
                 required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="driver-password">Password</Label>
-              <Input
-                id="driver-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min 8 characters"
-                required
-                minLength={8}
               />
             </div>
             <div className="space-y-1.5">

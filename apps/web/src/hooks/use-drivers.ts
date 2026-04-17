@@ -21,7 +21,6 @@ export interface Driver {
 
 export interface CreateDriverInput {
   email: string;
-  password: string;
   name: string;
   licenseNo: string;
   phone?: string;

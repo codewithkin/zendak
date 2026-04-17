@@ -1,5 +1,7 @@
 import { AppError } from "../../lib/errors";
+import { sendDriverWelcomeEmail } from "../../lib/mailer";
 import { hashPassword } from "../../lib/password";
+import { generateReadablePassword } from "../../lib/password-generator";
 import { authRepository } from "../auth/auth.repository";
 import type { CreateDriverInput, UpdateDriverInput } from "./drivers.schema";
 import { driversRepository } from "./drivers.repository";
@@ -16,7 +18,8 @@ export const driversService = {
 			throw AppError.conflict("License number already registered");
 		}
 
-		const hashed = await hashPassword(input.password);
+		const plainPassword = generateReadablePassword();
+		const hashed = await hashPassword(plainPassword);
 		const user = await authRepository.createUser({
 			email: input.email,
 			password: hashed,
@@ -24,11 +27,21 @@ export const driversService = {
 			role: "DRIVER",
 		});
 
-		return driversRepository.create({
+		const driver = await driversRepository.create({
 			userId: user.id,
 			licenseNo: input.licenseNo,
 			phone: input.phone,
 		});
+
+		// Send welcome email with credentials
+		await sendDriverWelcomeEmail({
+			to: input.email,
+			driverName: input.name,
+			workspaceName: "Zendak",
+			temporaryPassword: plainPassword,
+		});
+
+		return driver;
 	},
 
 	async findAll() {
