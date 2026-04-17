@@ -52,8 +52,8 @@ export function AddDriverDialog({ open, onOpenChange, onSuccess }: AddDriverDial
       reset();
       onOpenChange(false);
       onSuccess?.();
-    } catch {
-      toast.error("Failed to create driver");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to create driver");
     }
   }
 

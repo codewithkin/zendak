@@ -68,8 +68,8 @@ export function CreateTripDialog({ open, onOpenChange, onSuccess }: CreateTripDi
       reset();
       onOpenChange(false);
       onSuccess?.();
-    } catch {
-      toast.error("Failed to create trip");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to create trip");
     }
   }
 

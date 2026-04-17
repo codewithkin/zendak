@@ -50,8 +50,8 @@ export function AddTruckDialog({ open, onOpenChange, onSuccess }: AddTruckDialog
       reset();
       onOpenChange(false);
       onSuccess?.();
-    } catch {
-      toast.error("Failed to add truck");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to add truck");
     }
   }
 

@@ -55,8 +55,8 @@ export default function TripsPage() {
       await startTrip(id);
       toast.success("Trip started");
       refetch();
-    } catch {
-      toast.error("Failed to start trip");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to start trip");
     }
   }
 
@@ -65,8 +65,8 @@ export default function TripsPage() {
       await completeTrip(id);
       toast.success("Trip completed");
       refetch();
-    } catch {
-      toast.error("Failed to complete trip");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to complete trip");
     }
   }
 
@@ -75,8 +75,8 @@ export default function TripsPage() {
       await settleTrip(id);
       toast.success("Trip settled");
       refetch();
-    } catch {
-      toast.error("Failed to settle trip");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to settle trip");
     }
   }
 

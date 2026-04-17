@@ -77,8 +77,8 @@ export default function DriversPage() {
       toast.success("Driver updated");
       setEditOpen(false);
       refetch();
-    } catch {
-      toast.error("Failed to update driver");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to update driver");
     }
   }
 

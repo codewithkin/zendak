@@ -120,8 +120,8 @@ export default function ExpensesPage() {
       resetForm();
       setAddOpen(false);
       refetch();
-    } catch {
-      toast.error("Failed to add expense");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to add expense");
     }
   }
 
@@ -130,8 +130,8 @@ export default function ExpensesPage() {
       await deleteExpense(id);
       toast.success("Expense deleted");
       refetch();
-    } catch {
-      toast.error("Failed to delete expense");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete expense");
     }
   }
 

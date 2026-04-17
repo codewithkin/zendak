@@ -99,8 +99,8 @@ export default function TrucksPage() {
       toast.success("Truck updated");
       setEditOpen(false);
       refetch();
-    } catch {
-      toast.error("Failed to update truck");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to update truck");
     }
   }
 
@@ -109,8 +109,8 @@ export default function TrucksPage() {
       await deleteTruck(id);
       toast.success("Truck retired");
       refetch();
-    } catch {
-      toast.error("Failed to retire truck");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to retire truck");
     }
   }
 
