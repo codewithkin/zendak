@@ -52,4 +52,12 @@ export const trucksService = {
 
 		return trucksRepository.updateStatus(id, "RETIRED");
 	},
+
+	async search(q: string, page: number, limit: number, status?: string) {
+		const take = Math.min(limit, 50);
+		const skip = (page - 1) * take;
+		const validStatuses = ["AVAILABLE", "IN_TRANSIT", "MAINTENANCE", "RETIRED"];
+		const truckStatus = status && validStatuses.includes(status) ? (status as "AVAILABLE" | "IN_TRANSIT" | "MAINTENANCE" | "RETIRED") : undefined;
+		return trucksRepository.findPaginated({ search: q || undefined, skip, take, status: truckStatus });
+	},
 };

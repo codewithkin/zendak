@@ -22,6 +22,30 @@ export const trucksRepository = {
 		return prisma.truck.findUnique({ where: { plateNumber } });
 	},
 
+	async findPaginated(opts: { search?: string; skip: number; take: number; status?: TruckStatus }) {
+		const where = {
+			...(opts.status ? { status: opts.status } : {}),
+			...(opts.search
+				? {
+						OR: [
+							{ plateNumber: { contains: opts.search, mode: "insensitive" as const } },
+							{ model: { contains: opts.search, mode: "insensitive" as const } },
+						],
+					}
+				: {}),
+		};
+		const [items, total] = await Promise.all([
+			prisma.truck.findMany({
+				where,
+				orderBy: { createdAt: "desc" },
+				skip: opts.skip,
+				take: opts.take,
+			}),
+			prisma.truck.count({ where }),
+		]);
+		return { items, total, hasMore: opts.skip + opts.take < total };
+	},
+
 	async update(id: string, data: UpdateTruckInput) {
 		return prisma.truck.update({ where: { id }, data });
 	},

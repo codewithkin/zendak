@@ -40,6 +40,31 @@ export const tripsRepository = {
 		});
 	},
 
+	async findPaginated(opts: { search?: string; skip: number; take: number }) {
+		const where = opts.search
+			? {
+					OR: [
+						{ origin: { contains: opts.search, mode: "insensitive" as const } },
+						{ destination: { contains: opts.search, mode: "insensitive" as const } },
+					],
+				}
+			: {};
+		const [items, total] = await Promise.all([
+			prisma.trip.findMany({
+				where,
+				include: {
+					driver: { include: { user: { select: { name: true } } } },
+					truck: true,
+				},
+				orderBy: { createdAt: "desc" },
+				skip: opts.skip,
+				take: opts.take,
+			}),
+			prisma.trip.count({ where }),
+		]);
+		return { items, total, hasMore: opts.skip + opts.take < total };
+	},
+
 	async update(id: string, data: UpdateTripInput) {
 		return prisma.trip.update({
 			where: { id },

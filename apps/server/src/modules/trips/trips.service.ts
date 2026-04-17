@@ -116,4 +116,9 @@ export const tripsService = {
 
 		return tripsRepository.updateStatus(id, "SETTLED");
 	},
+	async search(q: string, page: number, limit: number) {
+		const take = Math.min(limit, 50);
+		const skip = (page - 1) * take;
+		return tripsRepository.findPaginated({ search: q || undefined, skip, take });
+	},
 };

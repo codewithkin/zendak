@@ -15,16 +15,8 @@ import {
 } from "@zendak/ui/components/dialog";
 import { Input } from "@zendak/ui/components/input";
 import { Label } from "@zendak/ui/components/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@zendak/ui/components/select";
 
-import { useDrivers } from "@/hooks/use-drivers";
-import { useTrucks } from "@/hooks/use-trucks";
+import { SearchSelect } from "@/components/search-select";
 import {
   useCreateTrip,
   type CreateTripInput,
@@ -38,8 +30,6 @@ interface CreateTripDialogProps {
 
 export function CreateTripDialog({ open, onOpenChange, onSuccess }: CreateTripDialogProps) {
   const { createTrip, isLoading: creating } = useCreateTrip();
-  const { drivers } = useDrivers();
-  const { trucks } = useTrucks();
 
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
@@ -72,8 +62,6 @@ export function CreateTripDialog({ open, onOpenChange, onSuccess }: CreateTripDi
       toast.error(err instanceof Error ? err.message : "Failed to create trip");
     }
   }
-
-  const availableTrucks = trucks.filter((t) => t.status === "AVAILABLE");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -108,33 +96,28 @@ export function CreateTripDialog({ open, onOpenChange, onSuccess }: CreateTripDi
             </div>
             <div className="space-y-1.5">
               <Label>Driver</Label>
-              <Select value={driverId} onValueChange={(v: string | null) => setDriverId(v ?? "")} required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a driver" />
-                </SelectTrigger>
-                <SelectContent>
-                  {drivers.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.user.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchSelect<{ id: string; user: { name: string } }>
+                value={driverId}
+                onChange={setDriverId}
+                endpoint="/api/drivers/search"
+                placeholder="Select a driver"
+                getLabel={(d) => d.user.name}
+                getValue={(d) => d.id}
+                required
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Truck</Label>
-              <Select value={truckId} onValueChange={(v: string | null) => setTruckId(v ?? "")} required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a truck" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTrucks.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.plateNumber} — {t.model}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchSelect<{ id: string; plateNumber: string; model: string }>
+                value={truckId}
+                onChange={setTruckId}
+                endpoint="/api/trucks/search"
+                placeholder="Select a truck"
+                getLabel={(t) => `${t.plateNumber} — ${t.model}`}
+                getValue={(t) => t.id}
+                extraParams={{ status: "AVAILABLE" }}
+                required
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="trip-distance">Distance (km, optional)</Label>

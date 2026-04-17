@@ -11,6 +11,7 @@ driversRoutes.use("/*", authMiddleware);
 
 driversRoutes.post("/", requireRole("ADMIN"), driversController.create);
 driversRoutes.get("/me", requireRole("DRIVER"), driversController.me);
+driversRoutes.get("/search", requireRole("ADMIN", "OPERATIONS"), driversController.search);
 driversRoutes.get("/", requireRole("ADMIN", "OPERATIONS"), driversController.findAll);
 driversRoutes.get("/:id", requireRole("ADMIN", "OPERATIONS"), driversController.findById);
 driversRoutes.patch("/:id", requireRole("ADMIN"), driversController.update);

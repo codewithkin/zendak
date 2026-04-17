@@ -37,6 +37,29 @@ export const driversRepository = {
 		return prisma.driver.findUnique({ where: { licenseNo } });
 	},
 
+	async findPaginated(opts: { search?: string; skip: number; take: number }) {
+		const where = opts.search
+			? {
+					OR: [
+						{ user: { name: { contains: opts.search, mode: "insensitive" as const } } },
+						{ user: { email: { contains: opts.search, mode: "insensitive" as const } } },
+						{ licenseNo: { contains: opts.search, mode: "insensitive" as const } },
+					],
+				}
+			: {};
+		const [items, total] = await Promise.all([
+			prisma.driver.findMany({
+				where,
+				include: { user: { select: { id: true, email: true, name: true, role: true, active: true } } },
+				orderBy: { createdAt: "desc" },
+				skip: opts.skip,
+				take: opts.take,
+			}),
+			prisma.driver.count({ where }),
+		]);
+		return { items, total, hasMore: opts.skip + opts.take < total };
+	},
+
 	async update(id: string, data: { licenseNo?: string; phone?: string }) {
 		return prisma.driver.update({
 			where: { id },

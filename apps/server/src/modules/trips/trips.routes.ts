@@ -10,6 +10,7 @@ const tripsRoutes = new Hono<AuthEnv>();
 tripsRoutes.use("/*", authMiddleware);
 
 tripsRoutes.post("/", requireRole("ADMIN", "OPERATIONS"), tripsController.create);
+tripsRoutes.get("/search", requireRole("ADMIN", "OPERATIONS", "ACCOUNTANT", "DRIVER"), tripsController.search);
 tripsRoutes.get("/", requireRole("ADMIN", "OPERATIONS", "ACCOUNTANT", "DRIVER"), tripsController.findAll);
 tripsRoutes.get("/:id", requireRole("ADMIN", "OPERATIONS", "ACCOUNTANT", "DRIVER"), tripsController.findById);
 tripsRoutes.patch("/:id", requireRole("ADMIN", "OPERATIONS"), tripsController.update);

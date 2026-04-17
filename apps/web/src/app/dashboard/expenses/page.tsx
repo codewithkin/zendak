@@ -48,8 +48,7 @@ import {
   type CreateExpenseInput,
   type ExpenseFilters,
 } from "@/hooks/use-expenses";
-import { useTrips } from "@/hooks/use-trips";
-import { useTrucks } from "@/hooks/use-trucks";
+import { SearchSelect } from "@/components/search-select";
 
 const EXPENSE_TYPES: Expense["type"][] = [
   "FUEL",
@@ -85,8 +84,6 @@ export default function ExpensesPage() {
   const { expenses, isLoading, refetch } = useExpenses(filters);
   const { createExpense, isLoading: creating } = useCreateExpense();
   const { deleteExpense, isLoading: deleting } = useDeleteExpense();
-  const { trips } = useTrips();
-  const { trucks } = useTrucks();
 
   const [addOpen, setAddOpen] = useState(false);
 
@@ -200,33 +197,25 @@ export default function ExpensesPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label>Trip (optional)</Label>
-                  <Select value={tripId} onValueChange={(v: string | null) => setTripId(v ?? "")}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a trip" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {trips.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.origin} → {t.destination}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchSelect<{ id: string; origin: string; destination: string }>
+                    value={tripId}
+                    onChange={setTripId}
+                    endpoint="/api/trips/search"
+                    placeholder="Select a trip"
+                    getLabel={(t) => `${t.origin} → ${t.destination}`}
+                    getValue={(t) => t.id}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Truck (optional)</Label>
-                  <Select value={truckId} onValueChange={(v: string | null) => setTruckId(v ?? "")}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a truck" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {trucks.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.plateNumber}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchSelect<{ id: string; plateNumber: string }>
+                    value={truckId}
+                    onChange={setTruckId}
+                    endpoint="/api/trucks/search"
+                    placeholder="Select a truck"
+                    getLabel={(t) => t.plateNumber}
+                    getValue={(t) => t.id}
+                  />
                 </div>
               </div>
               <DialogFooter className="mt-6">

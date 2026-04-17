@@ -43,4 +43,12 @@ export const driversController = {
 		const driver = await driversService.update(id, parsed.data);
 		return c.json(driver);
 	},
+
+	async search(c: Context) {
+		const q = c.req.query("q") ?? "";
+		const page = Math.max(1, Number(c.req.query("page") ?? 1));
+		const limit = Math.min(50, Math.max(1, Number(c.req.query("limit") ?? 10)));
+		const result = await driversService.search(q, page, limit);
+		return c.json(result);
+	},
 };

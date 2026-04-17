@@ -57,4 +57,12 @@ export const tripsController = {
 		const trip = await tripsService.settle(id);
 		return c.json(trip);
 	},
+
+	async search(c: Context) {
+		const q = c.req.query("q") ?? "";
+		const page = Math.max(1, Number(c.req.query("page") ?? 1));
+		const limit = Math.min(50, Math.max(1, Number(c.req.query("limit") ?? 10)));
+		const result = await tripsService.search(q, page, limit);
+		return c.json(result);
+	},
 };

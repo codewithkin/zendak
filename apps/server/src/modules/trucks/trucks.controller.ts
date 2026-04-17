@@ -42,4 +42,13 @@ export const trucksController = {
 		const truck = await trucksService.retire(id);
 		return c.json(truck);
 	},
+
+	async search(c: Context) {
+		const q = c.req.query("q") ?? "";
+		const page = Math.max(1, Number(c.req.query("page") ?? 1));
+		const limit = Math.min(50, Math.max(1, Number(c.req.query("limit") ?? 10)));
+		const status = c.req.query("status");
+		const result = await trucksService.search(q, page, limit, status);
+		return c.json(result);
+	},
 };
