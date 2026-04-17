@@ -56,8 +56,8 @@ export default function OpsDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Fleet Operations</h1>
-        <p className="text-xs text-muted-foreground">
+        <h1 className="text-xl font-semibold">Fleet Operations</h1>
+        <p className="text-sm text-muted-foreground">
           Watch dispatch readiness, live movement, and maintenance pressure across the fleet.
         </p>
       </div>

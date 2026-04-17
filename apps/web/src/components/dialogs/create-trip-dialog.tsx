@@ -159,7 +159,7 @@ export function CreateTripDialog({ open, onOpenChange, onSuccess }: CreateTripDi
             </div>
           </div>
           <DialogFooter className="mt-6">
-            <DialogClose asChild>
+            <DialogClose>
               <Button variant="outline" type="button">Cancel</Button>
             </DialogClose>
             <Button type="submit" disabled={creating}>

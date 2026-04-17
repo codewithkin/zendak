@@ -69,8 +69,8 @@ export default function FinanceDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Finance Command</h1>
-        <p className="text-xs text-muted-foreground">
+        <h1 className="text-xl font-semibold">Finance Command</h1>
+        <p className="text-sm text-muted-foreground">
           Monitor revenue capture, operating spend, and margin health across the business.
         </p>
       </div>

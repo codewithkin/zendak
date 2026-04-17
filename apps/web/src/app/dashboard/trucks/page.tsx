@@ -118,8 +118,8 @@ export default function TrucksPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">Trucks</h1>
-          <p className="text-xs text-muted-foreground">
+          <h1 className="text-xl font-semibold">Trucks</h1>
+          <p className="text-sm text-muted-foreground">
             Keep your active fleet, equipment status, and road-ready units organized.
           </p>
         </div>

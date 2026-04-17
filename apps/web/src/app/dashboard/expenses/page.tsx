@@ -139,8 +139,8 @@ export default function ExpensesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">Expenses</h1>
-          <p className="text-xs text-muted-foreground">
+          <h1 className="text-xl font-semibold">Expenses</h1>
+          <p className="text-sm text-muted-foreground">
             Record operating costs tied to trips, trucks, and margin control.
           </p>
         </div>

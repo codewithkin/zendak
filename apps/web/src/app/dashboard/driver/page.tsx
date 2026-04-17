@@ -45,8 +45,8 @@ export default function DriverDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Driver Workspace</h1>
-        <p className="text-xs text-muted-foreground">
+        <h1 className="text-xl font-semibold">Driver Workspace</h1>
+        <p className="text-sm text-muted-foreground">
           Keep your assigned routes, trip progress, and delivery rhythm in view.
         </p>
       </div>

@@ -100,7 +100,7 @@ export function AddTruckDialog({ open, onOpenChange, onSuccess }: AddTruckDialog
             </div>
           </div>
           <DialogFooter className="mt-6">
-            <DialogClose asChild>
+            <DialogClose>
               <Button variant="outline" type="button">Cancel</Button>
             </DialogClose>
             <Button type="submit" disabled={creating}>

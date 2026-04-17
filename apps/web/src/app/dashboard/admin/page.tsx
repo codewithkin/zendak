@@ -62,8 +62,8 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Executive Command Center</h1>
-        <p className="text-xs text-muted-foreground">
+        <h1 className="text-xl font-semibold">Executive Command Center</h1>
+        <p className="text-sm text-muted-foreground">
           Track the fleet, trip flow, and operating margin from one Zendak workspace.
         </p>
       </div>

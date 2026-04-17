@@ -77,8 +77,8 @@ export default function UsersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">Team Members</h1>
-          <p className="text-xs text-muted-foreground">
+          <h1 className="text-xl font-semibold">Team Members</h1>
+          <p className="text-sm text-muted-foreground">
             Manage the people with access to your Zendak workspace.
           </p>
         </div>

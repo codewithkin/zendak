@@ -111,7 +111,7 @@ export function AddDriverDialog({ open, onOpenChange, onSuccess }: AddDriverDial
             </div>
           </div>
           <DialogFooter className="mt-6">
-            <DialogClose asChild>
+            <DialogClose>
               <Button variant="outline" type="button">Cancel</Button>
             </DialogClose>
             <Button type="submit" disabled={creating}>

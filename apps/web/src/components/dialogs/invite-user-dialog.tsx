@@ -124,7 +124,7 @@ export function InviteUserDialog({ open, onOpenChange, onSuccess }: InviteUserDi
             </div>
           </div>
           <DialogFooter className="mt-6">
-            <DialogClose asChild>
+            <DialogClose>
               <Button type="button" variant="ghost" size="sm">
                 Cancel
               </Button>

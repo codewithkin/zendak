@@ -103,7 +103,7 @@ export function Sidebar({ user }: { user: User }) {
             <Link
               key={item.href}
               href={item.href as never}
-              className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium transition-colors ${
+              className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                 isActive
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -128,7 +128,7 @@ export function Sidebar({ user }: { user: User }) {
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start gap-2 rounded-xl"
+          className="w-full justify-start gap-2 rounded-lg"
           onClick={handleLogout}
         >
           <Icon icon={Logout01Icon} size={15} />

@@ -86,8 +86,8 @@ export default function DriversPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">Drivers</h1>
-          <p className="text-xs text-muted-foreground">
+          <h1 className="text-xl font-semibold">Drivers</h1>
+          <p className="text-sm text-muted-foreground">
             Maintain the people moving trips, handoffs, and delivery schedules.
           </p>
         </div>
