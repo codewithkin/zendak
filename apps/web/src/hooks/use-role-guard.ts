@@ -10,6 +10,7 @@ const ALLOWED_PAGES: Record<User["role"], string[]> = {
   ADMIN: [
     "/dashboard",
     "/dashboard/admin",
+    "/dashboard/admin/users",
     "/dashboard/trucks",
     "/dashboard/drivers",
     "/dashboard/trips",

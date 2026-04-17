@@ -7,6 +7,7 @@ import {
   Logout01Icon,
   MapsLocation01Icon,
   UserGroupIcon,
+  UserMultipleIcon,
   Wallet02Icon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
@@ -34,6 +35,7 @@ const allNavItems: NavItem[] = [
   { label: "Trips", href: "/dashboard/trips", icon: MapsLocation01Icon },
   { label: "Expenses", href: "/dashboard/expenses", icon: Invoice01Icon },
   { label: "Finance", href: "/dashboard/finance", icon: Wallet02Icon },
+  { label: "Users", href: "/dashboard/admin/users", icon: UserMultipleIcon },
 ];
 
 function getNavItems(role: User["role"]): NavItem[] {
