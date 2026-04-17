@@ -157,8 +157,8 @@ export default function ExpensesPage() {
                   Capture a new operating cost for the fleet or a specific trip.
                 </DialogDescription>
               </DialogHeader>
-              <div className="mt-4 space-y-3">
-                <div className="space-y-1.5">
+              <div className="mt-6 space-y-4">
+                <div className="mb-4 space-y-1.5">
                   <Label htmlFor="amount">Amount</Label>
                   <Input
                     id="amount"
@@ -171,7 +171,7 @@ export default function ExpensesPage() {
                     required
                   />
                 </div>
-                <div className="space-y-1.5">
+                <div className="mb-4 space-y-1.5">
                   <Label>Type</Label>
                   <Select value={type} onValueChange={(v: string | null) => { if (v) setType(v as Expense["type"]); }}>
                     <SelectTrigger>
@@ -195,7 +195,7 @@ export default function ExpensesPage() {
                     placeholder="Fuel refill at station X"
                   />
                 </div>
-                <div className="space-y-1.5">
+                <div className="mb-4 space-y-1.5">
                   <Label>Trip (optional)</Label>
                   <SearchSelect<{ id: string; origin: string; destination: string }>
                     value={tripId}
@@ -206,7 +206,7 @@ export default function ExpensesPage() {
                     getValue={(t) => t.id}
                   />
                 </div>
-                <div className="space-y-1.5">
+                <div className="mb-4 space-y-1.5">
                   <Label>Truck (optional)</Label>
                   <SearchSelect<{ id: string; plateNumber: string }>
                     value={truckId}

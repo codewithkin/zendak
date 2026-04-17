@@ -203,8 +203,8 @@ export default function TrucksPage() {
                 Update fleet details before the next dispatch cycle.
               </DialogDescription>
             </DialogHeader>
-            <div className="mt-4 space-y-3">
-              <div className="space-y-1.5">
+            <div className="mt-6 space-y-4">
+              <div className="mb-4 space-y-1.5">
                 <Label htmlFor="editPlateNumber">Plate Number</Label>
                 <Input
                   id="editPlateNumber"
@@ -213,7 +213,7 @@ export default function TrucksPage() {
                   required
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="mb-4 space-y-1.5">
                 <Label htmlFor="editModel">Model</Label>
                 <Input
                   id="editModel"
@@ -222,7 +222,7 @@ export default function TrucksPage() {
                   required
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="mb-4 space-y-1.5">
                 <Label htmlFor="editYear">Year</Label>
                 <Input
                   id="editYear"
@@ -233,7 +233,7 @@ export default function TrucksPage() {
                   max={2100}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="mb-4 space-y-1.5">
                 <Label>Status</Label>
                 <Select value={editStatus} onValueChange={(v: string | null) => { if (v) setEditStatus(v as Truck["status"]); }}>
                   <SelectTrigger>

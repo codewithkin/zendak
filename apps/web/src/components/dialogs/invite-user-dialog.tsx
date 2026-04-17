@@ -80,8 +80,8 @@ export function InviteUserDialog({ open, onOpenChange, onSuccess }: InviteUserDi
               Send an invite to your Zendak workspace. They'll receive an email with their login credentials.
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4 space-y-3">
-            <div className="space-y-1.5">
+          <div className="mt-6 space-y-4">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="invite-name">Full Name</Label>
               <Input
                 id="invite-name"
@@ -91,7 +91,7 @@ export function InviteUserDialog({ open, onOpenChange, onSuccess }: InviteUserDi
                 required
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="invite-email">Email Address</Label>
               <Input
                 id="invite-email"
@@ -102,7 +102,7 @@ export function InviteUserDialog({ open, onOpenChange, onSuccess }: InviteUserDi
                 required
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="invite-role">Role</Label>
               <Select
                 value={role}

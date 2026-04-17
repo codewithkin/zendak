@@ -73,8 +73,8 @@ export function CreateTripDialog({ open, onOpenChange, onSuccess }: CreateTripDi
               Build a new route with the right driver, truck, and delivery context.
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4 space-y-3">
-            <div className="space-y-1.5">
+          <div className="mt-6 space-y-4">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="trip-origin">Origin</Label>
               <Input
                 id="trip-origin"
@@ -84,7 +84,7 @@ export function CreateTripDialog({ open, onOpenChange, onSuccess }: CreateTripDi
                 required
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="trip-destination">Destination</Label>
               <Input
                 id="trip-destination"
@@ -94,7 +94,7 @@ export function CreateTripDialog({ open, onOpenChange, onSuccess }: CreateTripDi
                 required
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label>Driver</Label>
               <SearchSelect<{ id: string; user: { name: string } }>
                 value={driverId}
@@ -106,7 +106,7 @@ export function CreateTripDialog({ open, onOpenChange, onSuccess }: CreateTripDi
                 required
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label>Truck</Label>
               <SearchSelect<{ id: string; plateNumber: string; model: string }>
                 value={truckId}
@@ -119,7 +119,7 @@ export function CreateTripDialog({ open, onOpenChange, onSuccess }: CreateTripDi
                 required
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="trip-distance">Distance (km, optional)</Label>
               <Input
                 id="trip-distance"
@@ -131,7 +131,7 @@ export function CreateTripDialog({ open, onOpenChange, onSuccess }: CreateTripDi
                 step="0.1"
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="trip-notes">Notes (optional)</Label>
               <Input
                 id="trip-notes"

@@ -65,8 +65,8 @@ export function AddTruckDialog({ open, onOpenChange, onSuccess }: AddTruckDialog
               Register another truck in your Zendak fleet roster.
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4 space-y-3">
-            <div className="space-y-1.5">
+          <div className="mt-6 space-y-4">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="truck-plateNumber">Plate Number</Label>
               <Input
                 id="truck-plateNumber"
@@ -76,7 +76,7 @@ export function AddTruckDialog({ open, onOpenChange, onSuccess }: AddTruckDialog
                 required
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="truck-model">Model</Label>
               <Input
                 id="truck-model"
@@ -86,7 +86,7 @@ export function AddTruckDialog({ open, onOpenChange, onSuccess }: AddTruckDialog
                 required
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="truck-year">Year (optional)</Label>
               <Input
                 id="truck-year"

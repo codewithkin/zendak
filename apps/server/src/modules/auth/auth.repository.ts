@@ -5,13 +5,14 @@ export const authRepository = {
 		email: string;
 		password: string;
 		name: string;
+		role?: "ADMIN" | "ACCOUNTANT" | "OPERATIONS" | "DRIVER";
 	}) {
 		return prisma.user.create({
 			data: {
 				email: data.email,
 				password: data.password,
 				name: data.name,
-				role: "ADMIN",
+				role: data.role ?? "ADMIN",
 			},
 			select: {
 				id: true,

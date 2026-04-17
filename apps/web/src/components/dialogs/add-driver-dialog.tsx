@@ -67,8 +67,8 @@ export function AddDriverDialog({ open, onOpenChange, onSuccess }: AddDriverDial
               Create a new driver profile. A secure password will be auto-generated and sent to their email.
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4 space-y-3">
-            <div className="space-y-1.5">
+          <div className="mt-6 space-y-4">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="driver-name">Full Name</Label>
               <Input
                 id="driver-name"
@@ -78,7 +78,7 @@ export function AddDriverDialog({ open, onOpenChange, onSuccess }: AddDriverDial
                 required
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="driver-email">Email</Label>
               <Input
                 id="driver-email"
@@ -89,7 +89,7 @@ export function AddDriverDialog({ open, onOpenChange, onSuccess }: AddDriverDial
                 required
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="driver-licenseNo">License Number</Label>
               <Input
                 id="driver-licenseNo"
@@ -99,7 +99,7 @@ export function AddDriverDialog({ open, onOpenChange, onSuccess }: AddDriverDial
                 required
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="mb-4 space-y-1.5">
               <Label htmlFor="driver-phone">Phone (optional)</Label>
               <Input
                 id="driver-phone"
