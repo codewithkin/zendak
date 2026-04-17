@@ -12,6 +12,7 @@ import { profitRoutes } from "./modules/profit/profit.routes";
 import { revenueRoutes } from "./modules/revenue/revenue.routes";
 import { tripsRoutes } from "./modules/trips/trips.routes";
 import { trucksRoutes } from "./modules/trucks/trucks.routes";
+import { usersRoutes } from "./modules/users/users.routes";
 
 const app = new Hono();
 
@@ -37,6 +38,7 @@ app.route("/api/trips", tripsRoutes);
 app.route("/api/expenses", expensesRoutes);
 app.route("/api/revenue", revenueRoutes);
 app.route("/api/profit", profitRoutes);
+app.route("/api/users", usersRoutes);
 
 // ─── Global Error Handler ───────────────────────────────
 app.onError((err, c) => {

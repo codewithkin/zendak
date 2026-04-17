@@ -16,10 +16,12 @@
     "dotenv": "catalog:",
     "hono": "^4.8.2",
     "jose": "^6.2.2",
+    "nodemailer": "^8.0.5",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
+    "@types/nodemailer": "^8.0.0",
     "@zendak/config": "workspace:*",
     "tsdown": "^0.16.5",
     "typescript": "^5"

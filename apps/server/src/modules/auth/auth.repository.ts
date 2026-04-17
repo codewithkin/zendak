@@ -41,6 +41,7 @@ export const authRepository = {
 				role: true,
 				active: true,
 				onboardedAt: true,
+				businessId: true,
 				createdAt: true,
 			},
 		});
