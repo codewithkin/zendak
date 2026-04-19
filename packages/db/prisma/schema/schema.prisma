@@ -47,6 +47,20 @@ enum ExpenseType {
   MISC
 }
 
+enum PlanName {
+  FOUNDATION
+  CONTROL
+  COMMAND
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+}
+
 // ─── Auth Models ─────────────────────────────────────────
 
 model User {
@@ -78,16 +92,21 @@ model Session {
 }
 
 model Business {
-  id            String   @id @default(cuid())
-  name          String
-  location      String
-  truckCount    Int      @default(0)
-  employeeCount Int      @default(0)
-  phone         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                 String             @id @default(cuid())
+  name               String
+  location           String
+  truckCount         Int                @default(0)
+  employeeCount      Int                @default(0)
+  phone              String?
+  plan               PlanName?
+  subscriptionStatus SubscriptionStatus @default(TRIAL)
+  trialEndsAt        DateTime?
+  planActivatedAt    DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
 
-  users User[]
+  users               User[]
+  intermediatePayments IntermediatePayment[]
 }
 
 // ─── Core Operations ────────────────────────────────────
@@ -179,4 +198,21 @@ model Notification {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Billing Models ─────────────────────────────────────
+
+model IntermediatePayment {
+  id         String   @id @default(cuid())
+  userId     String
+  businessId String
+  planName   PlanName
+  amount     Decimal
+  paid       Boolean  @default(false)
+  processed  Boolean  @default(false)
+  polarCheckoutId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id])
 }
