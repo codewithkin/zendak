@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -30,11 +30,21 @@ import {
   UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@zendak/ui/components/icon";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from "recharts";
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@zendak/ui/components/chart";
 
 import { useDashboardStats } from "@/hooks/use-dashboard";
 import { useTrips, type Trip } from "@/hooks/use-trips";
 import { useTrucks } from "@/hooks/use-trucks";
 import { useExpenses, type Expense } from "@/hooks/use-expenses";
+import { useRevenue } from "@/hooks/use-finance";
 import { AddDriverDialog } from "@/components/dialogs/add-driver-dialog";
 import { AddTruckDialog } from "@/components/dialogs/add-truck-dialog";
 import { CreateTripDialog } from "@/components/dialogs/create-trip-dialog";
@@ -69,11 +79,25 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
+const revenueExpensesConfig = {
+  revenue: { label: "Revenue", color: "var(--chart-1)" },
+  expenses: { label: "Expenses", color: "var(--chart-2)" },
+} satisfies ChartConfig;
+
+const PIE_COLORS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+];
+
 export default function AdminDashboard() {
   const { stats, isLoading: statsLoading } = useDashboardStats();
   const { trips, isLoading: tripsLoading } = useTrips();
   const { trucks, isLoading: trucksLoading } = useTrucks();
   const { expenses, isLoading: expensesLoading } = useExpenses();
+  const { revenue, isLoading: revenueLoading } = useRevenue();
 
   const [addDriverOpen, setAddDriverOpen] = useState(false);
   const [addTruckOpen, setAddTruckOpen] = useState(false);
@@ -92,6 +116,35 @@ export default function AdminDashboard() {
     return acc;
   }, {});
   const totalExpenseAmount = Object.values(expensesByType).reduce((a, b) => a + b, 0);
+
+  // Monthly revenue vs expenses
+  const revenueVsExpensesData = useMemo(() => {
+    const monthMap: Record<string, { month: string; revenue: number; expenses: number }> = {};
+    for (const rev of revenue) {
+      const month = new Date(rev.createdAt).toLocaleString("en-US", { month: "short", year: "2-digit" });
+      if (!monthMap[month]) monthMap[month] = { month, revenue: 0, expenses: 0 };
+      monthMap[month].revenue += Number(rev.amount);
+    }
+    for (const exp of expenses) {
+      const month = new Date(exp.createdAt).toLocaleString("en-US", { month: "short", year: "2-digit" });
+      if (!monthMap[month]) monthMap[month] = { month, revenue: 0, expenses: 0 };
+      monthMap[month].expenses += Number.parseFloat(exp.amount);
+    }
+    return Object.values(monthMap).sort((a, b) => {
+      const [am, ay] = a.month.split(" ");
+      const [bm, by] = b.month.split(" ");
+      return new Date(`${am} 20${ay}`).getTime() - new Date(`${bm} 20${by}`).getTime();
+    });
+  }, [revenue, expenses]);
+
+  // Expense pie data
+  const expensePieData = useMemo(() =>
+    Object.entries(expensesByType)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([type, value]) => ({ name: type.replace(/_/g, " "), value: Math.round(value) })),
+    [expensesByType]
+  );
 
   return (
     <div className="space-y-6">
@@ -223,6 +276,64 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
+      {/* Revenue vs Expenses Area Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Revenue vs Expenses Trend</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {revenueLoading || expensesLoading ? (
+            <Skeleton className="h-[200px] w-full" />
+          ) : revenueVsExpensesData.length === 0 ? (
+            <p className="py-8 text-center text-xs text-muted-foreground">
+              No financial data available yet.
+            </p>
+          ) : (
+            <ChartContainer config={revenueExpensesConfig} className="h-[200px] w-full">
+              <AreaChart accessibilityLayer data={revenueVsExpensesData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                  width={48}
+                />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value) => formatCurrency(value as number)}
+                    />
+                  }
+                />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  fill="var(--color-revenue)"
+                  stroke="var(--color-revenue)"
+                  fillOpacity={0.2}
+                  strokeWidth={2}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="expenses"
+                  fill="var(--color-expenses)"
+                  stroke="var(--color-expenses)"
+                  fillOpacity={0.2}
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ChartContainer>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Trips Table */}
         <Card className="lg:col-span-2">
@@ -347,41 +458,75 @@ export default function AdminDashboard() {
         </CardHeader>
         <CardContent>
           {expensesLoading ? (
-            <div className="space-y-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-7 w-full" />
-              ))}
-            </div>
-          ) : Object.keys(expensesByType).length === 0 ? (
+            <Skeleton className="h-[200px] w-full" />
+          ) : expensePieData.length === 0 ? (
             <p className="py-4 text-center text-xs text-muted-foreground">
               No operating costs recorded yet.
             </p>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-              {Object.entries(expensesByType)
-                .sort(([, a], [, b]) => b - a)
-                .map(([expType, total]) => {
-                  const pct = totalExpenseAmount > 0 ? (total / totalExpenseAmount) * 100 : 0;
+            <div className="grid gap-6 lg:grid-cols-2">
+              <ChartContainer
+                config={Object.fromEntries(
+                  expensePieData.map((d, i) => [
+                    d.name,
+                    { label: d.name, color: PIE_COLORS[i % PIE_COLORS.length] },
+                  ])
+                )}
+                className="h-[180px] w-full"
+              >
+                <PieChart>
+                  <Pie
+                    data={expensePieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={70}
+                    strokeWidth={2}
+                  >
+                    {expensePieData.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent
+                        formatter={(value) => formatCurrency(value as number)}
+                      />
+                    }
+                  />
+                </PieChart>
+              </ChartContainer>
+              <div className="space-y-3">
+                {expensePieData.map((d, i) => {
+                  const pct = totalExpenseAmount > 0 ? (d.value / totalExpenseAmount) * 100 : 0;
                   return (
-                    <div key={expType} className="space-y-2">
+                    <div key={d.name} className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <Badge variant={typeVariant[expType as Expense["type"]]}>
-                          {expType.replace("_", " ")}
-                        </Badge>
-                        <span className="text-xs font-medium">
-                          {pct.toFixed(0)}%
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }}
+                          />
+                          <Badge variant={typeVariant[d.name.replace(/ /g, "_") as Expense["type"]]}>
+                            {d.name}
+                          </Badge>
+                        </div>
+                        <span className="text-xs font-medium">{formatCurrency(d.value)}</span>
                       </div>
-                      <p className="text-lg font-semibold">{formatCurrency(total)}</p>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                      <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
                         <div
-                          className="h-full rounded-full bg-primary transition-all"
-                          style={{ width: `${Math.min(pct, 100)}%` }}
+                          className="h-full rounded-full transition-all"
+                          style={{
+                            width: `${Math.min(pct, 100)}%`,
+                            backgroundColor: PIE_COLORS[i % PIE_COLORS.length],
+                          }}
                         />
                       </div>
                     </div>
                   );
                 })}
+              </div>
             </div>
           )}
         </CardContent>
