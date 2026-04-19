@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Skeleton } from "@zendak/ui/components/skeleton";
 
 import { Sidebar } from "@/components/sidebar";
+import { TrialBanner } from "@/components/plan-gate";
 import { useMe } from "@/hooks/use-auth";
 import { useRoleGuard } from "@/hooks/use-role-guard";
 
@@ -66,7 +67,10 @@ export default function DashboardLayout({
       <div className="flex flex-1 overflow-hidden">
         <Sidebar user={user} />
         <main className="flex-1 overflow-auto p-6">
-          <div className="mx-auto max-w-7xl">{children}</div>
+          <div className="mx-auto max-w-7xl space-y-4">
+            <TrialBanner />
+            {children}
+          </div>
         </main>
       </div>
     </div>

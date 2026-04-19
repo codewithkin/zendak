@@ -10,6 +10,7 @@ export interface User {
   role: "ADMIN" | "ACCOUNTANT" | "OPERATIONS" | "DRIVER";
   active: boolean;
   onboardedAt: string | null;
+  businessId: string | null;
   createdAt: string;
 }
 

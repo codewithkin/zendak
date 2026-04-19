@@ -11,6 +11,7 @@
     "@hugeicons/core-free-icons": "^4.1.1",
     "@prisma/client": "catalog:",
     "@zendak/env": "workspace:*",
+    "@zendak/plans": "workspace:*",
     "@zendak/ui": "workspace:*",
     "babel-plugin-react-compiler": "^1.0.0",
     "dotenv": "catalog:",
