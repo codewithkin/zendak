@@ -1,0 +1,14 @@
+{
+  "name": "@zendak/plans",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@zendak/config": "workspace:*",
+    "typescript": "^5"
+  }
+}
