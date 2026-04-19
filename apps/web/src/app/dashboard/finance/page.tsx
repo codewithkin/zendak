@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 import {
   Card,
@@ -27,6 +27,24 @@ import {
   PercentCircleIcon,
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@zendak/ui/components/icon";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@zendak/ui/components/chart";
 
 import { useFinanceSummary, useRevenue } from "@/hooks/use-finance";
 import { useExpenses, type Expense } from "@/hooks/use-expenses";
@@ -55,6 +73,19 @@ const typeVariant: Record<Expense["type"], "default" | "warning" | "secondary" |
   MISC: "destructive",
 };
 
+const revenueVsExpensesConfig = {
+  revenue: { label: "Revenue", color: "var(--chart-1)" },
+  expenses: { label: "Expenses", color: "var(--chart-2)" },
+} satisfies ChartConfig;
+
+const PIE_COLORS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+];
+
 export default function FinanceDashboard() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -72,6 +103,37 @@ export default function FinanceDashboard() {
     acc[t] = (acc[t] ?? 0) + Number.parseFloat(exp.amount);
     return acc;
   }, {});
+
+  // Build monthly revenue vs expenses chart data
+  const revenueVsExpensesData = useMemo(() => {
+    const monthMap: Record<string, { month: string; revenue: number; expenses: number }> = {};
+
+    for (const rev of revenue) {
+      const month = new Date(rev.createdAt).toLocaleString("en-US", { month: "short", year: "2-digit" });
+      if (!monthMap[month]) monthMap[month] = { month, revenue: 0, expenses: 0 };
+      monthMap[month].revenue += Number(rev.amount);
+    }
+
+    for (const exp of expenses) {
+      const month = new Date(exp.createdAt).toLocaleString("en-US", { month: "short", year: "2-digit" });
+      if (!monthMap[month]) monthMap[month] = { month, revenue: 0, expenses: 0 };
+      monthMap[month].expenses += Number.parseFloat(exp.amount);
+    }
+
+    return Object.values(monthMap).sort((a, b) => {
+      const [am, ay] = a.month.split(" ");
+      const [bm, by] = b.month.split(" ");
+      return new Date(`${am} 20${ay}`).getTime() - new Date(`${bm} 20${by}`).getTime();
+    });
+  }, [revenue, expenses]);
+
+  // Build pie data for expense breakdown
+  const expensePieData = useMemo(() => {
+    return Object.entries(expensesByType)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([type, value]) => ({ name: type.replace(/_/g, " "), value: Math.round(value) }));
+  }, [expensesByType]);
 
   return (
     <div className="space-y-6">
@@ -179,6 +241,52 @@ export default function FinanceDashboard() {
         </Card>
       </div>
 
+      {/* Revenue vs Expenses Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Revenue vs Expenses</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {revenueLoading || expensesLoading ? (
+            <Skeleton className="h-[220px] w-full" />
+          ) : revenueVsExpensesData.length === 0 ? (
+            <p className="py-8 text-center text-xs text-muted-foreground">
+              No financial data available yet.
+            </p>
+          ) : (
+            <ChartContainer config={revenueVsExpensesConfig} className="h-[220px] w-full">
+              <BarChart accessibilityLayer data={revenueVsExpensesData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                  width={48}
+                />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value) =>
+                        formatCurrency(value as number)
+                      }
+                    />
+                  }
+                />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Bar dataKey="revenue" fill="var(--color-revenue)" radius={4} />
+                <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
+              </BarChart>
+            </ChartContainer>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Revenue Table */}
         <Card>
@@ -225,51 +333,68 @@ export default function FinanceDashboard() {
           </CardContent>
         </Card>
 
-        {/* Expense Breakdown */}
+        {/* Expense Breakdown Pie */}
         <Card>
           <CardHeader>
             <CardTitle>Operating Cost Breakdown</CardTitle>
           </CardHeader>
           <CardContent>
             {expensesLoading ? (
-              <div className="space-y-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Skeleton key={i} className="h-7 w-full" />
-                ))}
-              </div>
-            ) : Object.keys(expensesByType).length === 0 ? (
+              <Skeleton className="h-[220px] w-full" />
+            ) : expensePieData.length === 0 ? (
               <p className="py-4 text-center text-xs text-muted-foreground">
                 No operating costs have been recorded yet.
               </p>
             ) : (
-              <div className="space-y-3">
-                {Object.entries(expensesByType)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([expType, total]) => {
-                    const totalExpenses = summary?.totalExpenses ?? 1;
-                    const pct = totalExpenses > 0 ? (total / totalExpenses) * 100 : 0;
-                    return (
-                      <div key={expType} className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <Badge variant={typeVariant[expType as Expense["type"]]}>
-                            {expType.replace("_", " ")}
-                          </Badge>
-                          <span className="text-xs font-medium">
-                            {formatCurrency(total)}
-                          </span>
-                        </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                          <div
-                            className="h-full rounded-full bg-primary transition-all"
-                            style={{ width: `${Math.min(pct, 100)}%` }}
-                          />
-                        </div>
-                        <p className="text-[10px] text-muted-foreground">
-                          {pct.toFixed(1)}% of total expenses
-                        </p>
+              <div className="space-y-4">
+                <ChartContainer
+                  config={Object.fromEntries(
+                    expensePieData.map((d, i) => [
+                      d.name,
+                      { label: d.name, color: PIE_COLORS[i % PIE_COLORS.length] },
+                    ])
+                  )}
+                  className="h-[180px] w-full"
+                >
+                  <PieChart>
+                    <Pie
+                      data={expensePieData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={70}
+                      strokeWidth={2}
+                    >
+                      {expensePieData.map((_, i) => (
+                        <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                          formatter={(value) => formatCurrency(value as number)}
+                        />
+                      }
+                    />
+                  </PieChart>
+                </ChartContainer>
+                <div className="space-y-2">
+                  {expensePieData.map((d, i) => (
+                    <div key={d.name} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="h-2 w-2 rounded-full"
+                          style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }}
+                        />
+                        <Badge variant={typeVariant[d.name.replace(/ /g, "_") as Expense["type"]]}>
+                          {d.name}
+                        </Badge>
                       </div>
-                    );
-                  })}
+                      <span className="text-xs font-medium">{formatCurrency(d.value)}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>
