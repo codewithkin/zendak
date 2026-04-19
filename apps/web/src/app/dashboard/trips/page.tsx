@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@zendak/ui/components/button";
@@ -35,6 +35,13 @@ import {
   PlayIcon,
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@zendak/ui/components/icon";
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis } from "recharts";
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@zendak/ui/components/chart";
 
 import {
   useTrips,
@@ -54,6 +61,20 @@ const tripStatusVariant: Record<Trip["status"], "secondary" | "default" | "succe
   SETTLED: "outline",
 };
 
+const STATUS_COLORS: Record<Trip["status"], string> = {
+  PLANNED: "var(--chart-3)",
+  ACTIVE: "var(--chart-1)",
+  COMPLETED: "var(--chart-2)",
+  SETTLED: "var(--chart-4)",
+};
+
+const tripStatusChartConfig = {
+  PLANNED: { label: "Planned", color: "var(--chart-3)" },
+  ACTIVE: { label: "Active", color: "var(--chart-1)" },
+  COMPLETED: { label: "Completed", color: "var(--chart-2)" },
+  SETTLED: { label: "Settled", color: "var(--chart-4)" },
+} satisfies ChartConfig;
+
 export default function TripsPage() {
   const { trips, isLoading, refetch } = useTrips();
   const { startTrip } = useStartTrip();
@@ -71,6 +92,30 @@ export default function TripsPage() {
   const filteredTrips = filterStatus
     ? trips.filter((t) => t.status === filterStatus)
     : trips;
+
+  // Trip status distribution for pie chart
+  const statusPieData = useMemo(() => [
+    { name: "Planned", value: planned, status: "PLANNED" as Trip["status"] },
+    { name: "Active", value: active, status: "ACTIVE" as Trip["status"] },
+    { name: "Completed", value: completed, status: "COMPLETED" as Trip["status"] },
+    { name: "Settled", value: settled, status: "SETTLED" as Trip["status"] },
+  ].filter((d) => d.value > 0), [planned, active, completed, settled]);
+
+  // Trips per month bar chart
+  const tripsPerMonthData = useMemo(() => {
+    const monthMap: Record<string, number> = {};
+    for (const trip of trips) {
+      const month = new Date(trip.createdAt).toLocaleString("en-US", { month: "short", year: "2-digit" });
+      monthMap[month] = (monthMap[month] ?? 0) + 1;
+    }
+    return Object.entries(monthMap)
+      .sort(([a], [b]) => {
+        const [am, ay] = a.split(" ");
+        const [bm, by] = b.split(" ");
+        return new Date(`${am} 20${ay}`).getTime() - new Date(`${bm} 20${by}`).getTime();
+      })
+      .map(([month, trips]) => ({ month, trips }));
+  }, [trips]);
 
   async function handleStart(id: string) {
     try {
@@ -162,6 +207,82 @@ export default function TripsPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? <Skeleton className="h-6 w-12" /> : <p className="text-xl font-bold">{settled}</p>}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Trip Charts */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Trips Per Month</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <Skeleton className="h-[180px] w-full" />
+            ) : tripsPerMonthData.length === 0 ? (
+              <p className="py-8 text-center text-xs text-muted-foreground">No trip data yet.</p>
+            ) : (
+              <ChartContainer
+                config={{ trips: { label: "Trips", color: "var(--chart-1)" } }}
+                className="h-[180px] w-full"
+              >
+                <BarChart accessibilityLayer data={tripsPerMonthData}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="trips" fill="var(--color-trips)" radius={4} />
+                </BarChart>
+              </ChartContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Status Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <Skeleton className="h-[180px] w-full" />
+            ) : statusPieData.length === 0 ? (
+              <p className="py-8 text-center text-xs text-muted-foreground">No trips yet.</p>
+            ) : (
+              <div className="space-y-3">
+                <ChartContainer config={tripStatusChartConfig} className="h-[140px] w-full">
+                  <PieChart>
+                    <Pie
+                      data={statusPieData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={60}
+                      strokeWidth={2}
+                    >
+                      {statusPieData.map((entry) => (
+                        <Cell key={entry.status} fill={STATUS_COLORS[entry.status]} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                  </PieChart>
+                </ChartContainer>
+                <div className="grid grid-cols-2 gap-2">
+                  {statusPieData.map((entry) => (
+                    <div key={entry.status} className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full" style={{ backgroundColor: STATUS_COLORS[entry.status] }} />
+                      <span className="text-xs text-muted-foreground">{entry.name}</span>
+                      <span className="ml-auto text-xs font-semibold">{entry.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
