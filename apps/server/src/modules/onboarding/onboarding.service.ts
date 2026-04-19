@@ -1,3 +1,5 @@
+import { TRIAL_DAYS } from "@zendak/plans";
+
 import { AppError } from "../../lib/errors";
 import type { OnboardingInput } from "./onboarding.schema";
 import { onboardingRepository } from "./onboarding.repository";
@@ -18,6 +20,9 @@ export const onboardingService = {
 			throw AppError.conflict("Onboarding already completed");
 		}
 
+		const trialEndsAt = new Date();
+		trialEndsAt.setDate(trialEndsAt.getDate() + TRIAL_DAYS);
+
 		const business = await onboardingRepository.createBusiness({
 			name: input.businessName,
 			location: input.location,
@@ -25,6 +30,7 @@ export const onboardingService = {
 			employeeCount: input.employeeCount,
 			phone: input.phone,
 			ownerId: userId,
+			trialEndsAt,
 		});
 
 		const updatedUser = await onboardingRepository.markUserOnboarded(userId, business.id);

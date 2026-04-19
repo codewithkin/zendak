@@ -8,6 +8,7 @@ export const onboardingRepository = {
 		employeeCount: number;
 		phone?: string;
 		ownerId: string;
+		trialEndsAt: Date;
 	}) {
 		return prisma.business.create({
 			data: {
@@ -16,6 +17,8 @@ export const onboardingRepository = {
 				truckCount: data.truckCount,
 				employeeCount: data.employeeCount,
 				phone: data.phone,
+				subscriptionStatus: "TRIAL",
+				trialEndsAt: data.trialEndsAt,
 				users: { connect: { id: data.ownerId } },
 			},
 		});
