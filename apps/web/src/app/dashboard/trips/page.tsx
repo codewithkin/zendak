@@ -8,7 +8,16 @@ import { Badge } from "@zendak/ui/components/badge";
 import {
   Card,
   CardContent,
+  CardHeader,
+  CardTitle,
 } from "@zendak/ui/components/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@zendak/ui/components/select";
 import { Skeleton } from "@zendak/ui/components/skeleton";
 import {
   Table,
@@ -22,6 +31,7 @@ import {
   AddCircleIcon,
   CheckmarkCircle02Icon,
   Invoice01Icon,
+  MapsLocation01Icon,
   PlayIcon,
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@zendak/ui/components/icon";
@@ -34,6 +44,8 @@ import {
   type Trip,
 } from "@/hooks/use-trips";
 import { CreateTripDialog } from "@/components/dialogs/create-trip-dialog";
+
+const TRIP_STATUSES: Trip["status"][] = ["PLANNED", "ACTIVE", "COMPLETED", "SETTLED"];
 
 const tripStatusVariant: Record<Trip["status"], "secondary" | "default" | "success" | "outline"> = {
   PLANNED: "secondary",
@@ -49,6 +61,16 @@ export default function TripsPage() {
   const { settleTrip } = useSettleTrip();
 
   const [addOpen, setAddOpen] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<Trip["status"] | "">("");
+
+  const planned = trips.filter((t) => t.status === "PLANNED").length;
+  const active = trips.filter((t) => t.status === "ACTIVE").length;
+  const completed = trips.filter((t) => t.status === "COMPLETED").length;
+  const settled = trips.filter((t) => t.status === "SETTLED").length;
+
+  const filteredTrips = filterStatus
+    ? trips.filter((t) => t.status === filterStatus)
+    : trips;
 
   async function handleStart(id: string) {
     try {
@@ -91,9 +113,77 @@ export default function TripsPage() {
         </div>
 
         <Button size="sm" onClick={() => setAddOpen(true)}>
-              <Icon icon={AddCircleIcon} className="size-3.5" />
-              Create Trip
-            </Button>
+          <Icon icon={AddCircleIcon} className="size-3.5" />
+          Create Trip
+        </Button>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Planned
+            </CardTitle>
+            <Icon icon={MapsLocation01Icon} className="text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {isLoading ? <Skeleton className="h-6 w-12" /> : <p className="text-xl font-bold">{planned}</p>}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Active
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? <Skeleton className="h-6 w-12" /> : <p className="text-xl font-bold">{active}</p>}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Completed
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? <Skeleton className="h-6 w-12" /> : <p className="text-xl font-bold">{completed}</p>}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Settled
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? <Skeleton className="h-6 w-12" /> : <p className="text-xl font-bold">{settled}</p>}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Status Filter */}
+      <div className="flex items-center gap-3">
+        <div className="w-48">
+          <Select
+            value={filterStatus}
+            onValueChange={(v: string | null) => setFilterStatus((v ?? "") as Trip["status"] | "")}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Statuses</SelectItem>
+              {TRIP_STATUSES.map((s) => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <Card>
@@ -104,33 +194,39 @@ export default function TripsPage() {
                 <Skeleton key={i} className="h-8 w-full" />
               ))}
             </div>
-          ) : trips.length === 0 ? (
+          ) : filteredTrips.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">
-              No trips are scheduled yet. Create your first route to start moving freight.
+              {filterStatus
+                ? `No trips with status "${filterStatus}".`
+                : "No trips are scheduled yet. Create your first route to start moving freight."}
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Origin</TableHead>
-                  <TableHead>Destination</TableHead>
+                  <TableHead>Route</TableHead>
                   <TableHead>Driver</TableHead>
                   <TableHead>Truck</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
                   <TableHead className="w-32">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {trips.map((trip) => (
+                {filteredTrips.map((trip) => (
                   <TableRow key={trip.id}>
-                    <TableCell>{trip.origin}</TableCell>
-                    <TableCell>{trip.destination}</TableCell>
+                    <TableCell className="font-medium">
+                      {trip.origin} → {trip.destination}
+                    </TableCell>
                     <TableCell>{trip.driver.user.name}</TableCell>
                     <TableCell>{trip.truck.plateNumber}</TableCell>
                     <TableCell>
                       <Badge variant={tripStatusVariant[trip.status]}>
                         {trip.status}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(trip.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">

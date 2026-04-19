@@ -4,9 +4,12 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@zendak/ui/components/button";
+import { Badge } from "@zendak/ui/components/badge";
 import {
   Card,
   CardContent,
+  CardHeader,
+  CardTitle,
 } from "@zendak/ui/components/card";
 import {
   Dialog,
@@ -31,6 +34,7 @@ import {
 import {
   AddCircleIcon,
   PencilEdit02Icon,
+  UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@zendak/ui/components/icon";
 
@@ -41,15 +45,29 @@ import {
   type UpdateDriverInput,
 } from "@/hooks/use-drivers";
 import { AddDriverDialog } from "@/components/dialogs/add-driver-dialog";
+import { useTrips } from "@/hooks/use-trips";
 
 export default function DriversPage() {
   const { drivers, isLoading, refetch } = useDrivers();
   const { updateDriver, isLoading: updating } = useUpdateDriver();
+  const { trips, isLoading: tripsLoading } = useTrips();
 
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
+
+  // Compute trip counts per driver
+  const tripCountByDriver = trips.reduce<Record<string, number>>((acc, trip) => {
+    acc[trip.driverId] = (acc[trip.driverId] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const activeDriverIds = new Set(
+    trips.filter((t) => t.status === "ACTIVE").map((t) => t.driverId),
+  );
+  const activeDrivers = drivers.filter((d) => activeDriverIds.has(d.id)).length;
+  const idleDrivers = drivers.length - activeDrivers;
 
   // Edit form
   const [editName, setEditName] = useState("");
@@ -98,6 +116,55 @@ export default function DriversPage() {
             </Button>
       </div>
 
+      {/* Summary Cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Total Drivers
+            </CardTitle>
+            <Icon icon={UserGroupIcon} className="text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <Skeleton className="h-6 w-12" />
+            ) : (
+              <p className="text-xl font-bold">{drivers.length}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              On Active Trip
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading || tripsLoading ? (
+              <Skeleton className="h-6 w-12" />
+            ) : (
+              <p className="text-xl font-bold">{activeDrivers}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Available
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading || tripsLoading ? (
+              <Skeleton className="h-6 w-12" />
+            ) : (
+              <p className="text-xl font-bold">{idleDrivers}</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardContent className="pt-4">
           {isLoading ? (
@@ -118,6 +185,8 @@ export default function DriversPage() {
                   <TableHead>Email</TableHead>
                   <TableHead>License No.</TableHead>
                   <TableHead>Phone</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Total Trips</TableHead>
                   <TableHead className="w-16">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -130,6 +199,12 @@ export default function DriversPage() {
                     <TableCell>{driver.user.email}</TableCell>
                     <TableCell>{driver.licenseNo}</TableCell>
                     <TableCell>{driver.phone ?? "—"}</TableCell>
+                    <TableCell>
+                      <Badge variant={activeDriverIds.has(driver.id) ? "default" : "secondary"}>
+                        {activeDriverIds.has(driver.id) ? "ON TRIP" : "AVAILABLE"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{tripCountByDriver[driver.id] ?? 0}</TableCell>
                     <TableCell>
                       <Button
                         variant="ghost"

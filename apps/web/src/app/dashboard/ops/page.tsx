@@ -29,6 +29,7 @@ import { Icon } from "@zendak/ui/components/icon";
 
 import { useTrucks } from "@/hooks/use-trucks";
 import { useTrips, type Trip } from "@/hooks/use-trips";
+import { useDrivers } from "@/hooks/use-drivers";
 import { AddDriverDialog } from "@/components/dialogs/add-driver-dialog";
 import { AddTruckDialog } from "@/components/dialogs/add-truck-dialog";
 import { CreateTripDialog } from "@/components/dialogs/create-trip-dialog";
@@ -43,6 +44,7 @@ const tripStatusVariant: Record<Trip["status"], "secondary" | "default" | "succe
 export default function OpsDashboard() {
   const { trucks, isLoading: trucksLoading } = useTrucks();
   const { trips, isLoading: tripsLoading } = useTrips();
+  const { drivers, isLoading: driversLoading } = useDrivers();
 
   const [addDriverOpen, setAddDriverOpen] = useState(false);
   const [addTruckOpen, setAddTruckOpen] = useState(false);
@@ -55,49 +57,43 @@ export default function OpsDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold">Fleet Operations</h1>
-        <p className="text-sm text-muted-foreground">
-          Watch dispatch readiness, live movement, and maintenance pressure across the fleet.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold">Fleet Operations</h1>
+          <p className="text-sm text-muted-foreground">
+            Watch dispatch readiness, live movement, and maintenance pressure across the fleet.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setAddDriverOpen(true)}
+          >
+            <Icon icon={UserGroupIcon} size={14} className="text-muted-foreground" />
+            Add Driver
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setAddTruckOpen(true)}
+          >
+            <Icon icon={DeliveryTruck02Icon} size={14} className="text-muted-foreground" />
+            Add Truck
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setCreateTripOpen(true)}
+          >
+            <Icon icon={MapsLocation01Icon} size={14} className="text-muted-foreground" />
+            Create Trip
+          </Button>
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setAddDriverOpen(true)}
-            >
-              <Icon icon={UserGroupIcon} size={14} className="text-muted-foreground" />
-              Add Driver
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setAddTruckOpen(true)}
-            >
-              <Icon icon={DeliveryTruck02Icon} size={14} className="text-muted-foreground" />
-              Add Truck
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setCreateTripOpen(true)}
-            >
-              <Icon icon={MapsLocation01Icon} size={14} className="text-muted-foreground" />
-              Create Trip
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-medium text-muted-foreground">
@@ -158,6 +154,22 @@ export default function OpsDashboard() {
               <Skeleton className="h-6 w-12" />
             ) : (
               <p className="text-xl font-bold">{maintenance}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Drivers
+            </CardTitle>
+            <Icon icon={UserGroupIcon} className="text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {driversLoading ? (
+              <Skeleton className="h-6 w-12" />
+            ) : (
+              <p className="text-xl font-bold">{drivers.length}</p>
             )}
           </CardContent>
         </Card>

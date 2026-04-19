@@ -8,6 +8,8 @@ import { Badge } from "@zendak/ui/components/badge";
 import {
   Card,
   CardContent,
+  CardHeader,
+  CardTitle,
 } from "@zendak/ui/components/card";
 import {
   Dialog,
@@ -37,7 +39,7 @@ import {
   TableHeader,
   TableRow,
 } from "@zendak/ui/components/table";
-import { AddCircleIcon, Delete02Icon } from "@hugeicons/core-free-icons";
+import { AddCircleIcon, Delete02Icon, Invoice01Icon } from "@hugeicons/core-free-icons";
 import { Icon } from "@zendak/ui/components/icon";
 
 import {
@@ -82,8 +84,20 @@ export default function ExpensesPage() {
   if (filterType) filters.type = filterType;
 
   const { expenses, isLoading, refetch } = useExpenses(filters);
+  const { expenses: allExpenses, isLoading: allLoading } = useExpenses();
   const { createExpense, isLoading: creating } = useCreateExpense();
   const { deleteExpense, isLoading: deleting } = useDeleteExpense();
+
+  // Summary computations (from unfiltered expenses)
+  const totalAmount = allExpenses.reduce(
+    (sum, e) => sum + Number.parseFloat(e.amount),
+    0,
+  );
+  const expensesByType = allExpenses.reduce<Record<string, number>>((acc, exp) => {
+    acc[exp.type] = (acc[exp.type] ?? 0) + Number.parseFloat(exp.amount);
+    return acc;
+  }, {});
+  const topCategory = Object.entries(expensesByType).sort(([, a], [, b]) => b - a)[0];
 
   const [addOpen, setAddOpen] = useState(false);
 
@@ -229,6 +243,62 @@ export default function ExpensesPage() {
             </form>
           </DialogContent>
         </Dialog>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Total Expenses
+            </CardTitle>
+            <Icon icon={Invoice01Icon} className="text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {allLoading ? (
+              <Skeleton className="h-6 w-24" />
+            ) : (
+              <p className="text-xl font-bold">{formatCurrency(totalAmount)}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Records
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {allLoading ? (
+              <Skeleton className="h-6 w-12" />
+            ) : (
+              <p className="text-xl font-bold">{allExpenses.length}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Top Category
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {allLoading ? (
+              <Skeleton className="h-6 w-20" />
+            ) : topCategory ? (
+              <div className="flex items-center gap-2">
+                <Badge variant={typeVariant[topCategory[0] as Expense["type"]]}>
+                  {topCategory[0].replace("_", " ")}
+                </Badge>
+                <span className="text-sm font-semibold">{formatCurrency(topCategory[1])}</span>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">—</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Filter Bar */}

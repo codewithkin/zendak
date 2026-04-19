@@ -40,8 +40,12 @@ import {
 } from "@zendak/ui/components/table";
 import {
   AddCircleIcon,
+  CheckmarkCircle02Icon,
   Delete02Icon,
+  DeliveryTruck02Icon,
+  MapsLocation01Icon,
   PencilEdit02Icon,
+  ToolboxIcon,
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@zendak/ui/components/icon";
 
@@ -69,6 +73,15 @@ export default function TrucksPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editingTruck, setEditingTruck] = useState<Truck | null>(null);
+  const [filterStatus, setFilterStatus] = useState<Truck["status"] | "">("");
+
+  const available = trucks.filter((t) => t.status === "AVAILABLE").length;
+  const inTransit = trucks.filter((t) => t.status === "IN_TRANSIT").length;
+  const maintenance = trucks.filter((t) => t.status === "MAINTENANCE").length;
+
+  const filteredTrucks = filterStatus
+    ? trucks.filter((t) => t.status === filterStatus)
+    : trucks;
 
   // Edit form state
   const [editPlateNumber, setEditPlateNumber] = useState("");
@@ -130,6 +143,94 @@ export default function TrucksPage() {
             </Button>
       </div>
 
+      {/* Summary Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Total Fleet
+            </CardTitle>
+            <Icon icon={DeliveryTruck02Icon} className="text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <Skeleton className="h-6 w-12" />
+            ) : (
+              <p className="text-xl font-bold">{trucks.length}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Available
+            </CardTitle>
+            <Icon icon={CheckmarkCircle02Icon} className="text-emerald-500" />
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <Skeleton className="h-6 w-12" />
+            ) : (
+              <p className="text-xl font-bold">{available}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              In Transit
+            </CardTitle>
+            <Icon icon={MapsLocation01Icon} className="text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <Skeleton className="h-6 w-12" />
+            ) : (
+              <p className="text-xl font-bold">{inTransit}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Maintenance
+            </CardTitle>
+            <Icon icon={ToolboxIcon} className="text-amber-500" />
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <Skeleton className="h-6 w-12" />
+            ) : (
+              <p className="text-xl font-bold">{maintenance}</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Status Filter */}
+      <div className="flex items-center gap-3">
+        <div className="w-48">
+          <Select
+            value={filterStatus}
+            onValueChange={(v: string | null) => setFilterStatus((v ?? "") as Truck["status"] | "")}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Statuses</SelectItem>
+              <SelectItem value="AVAILABLE">Available</SelectItem>
+              <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
+              <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
+              <SelectItem value="RETIRED">Retired</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <Card>
         <CardContent className="pt-4">
           {isLoading ? (
@@ -138,9 +239,11 @@ export default function TrucksPage() {
                 <Skeleton key={i} className="h-8 w-full" />
               ))}
             </div>
-          ) : trucks.length === 0 ? (
+          ) : filteredTrucks.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted-foreground">
-              No trucks are in your Zendak fleet yet. Add your first unit to start dispatching.
+              {filterStatus
+                ? `No trucks with status "${filterStatus.replace("_", " ")}".`
+                : "No trucks are in your Zendak fleet yet. Add your first unit to start dispatching."}
             </p>
           ) : (
             <Table>
@@ -154,7 +257,7 @@ export default function TrucksPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {trucks.map((truck) => (
+                {filteredTrucks.map((truck) => (
                   <TableRow key={truck.id}>
                     <TableCell className="font-medium">
                       {truck.plateNumber}
