@@ -6,7 +6,7 @@ import { apiClient, ApiError } from "@/lib/api";
 export interface Expense {
   id: string;
   amount: string;
-  type: "FUEL" | "MAINTENANCE" | "DRIVER_COST" | "TOLL" | "MISC";
+  type: "FUEL" | "MAINTENANCE" | "DRIVER_COST" | "TOLL" | "INSURANCE" | "PARKING" | "PERMITS" | "REPAIRS" | "CLEANING" | "MEALS" | "EQUIPMENT" | "MISC";
   description: string | null;
   tripId: string | null;
   truckId: string | null;

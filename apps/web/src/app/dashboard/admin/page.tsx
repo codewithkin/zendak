@@ -51,6 +51,13 @@ const typeVariant: Record<Expense["type"], "default" | "warning" | "secondary" |
   MAINTENANCE: "warning",
   DRIVER_COST: "secondary",
   TOLL: "outline",
+  INSURANCE: "secondary",
+  PARKING: "outline",
+  PERMITS: "secondary",
+  REPAIRS: "warning",
+  CLEANING: "secondary",
+  MEALS: "secondary",
+  EQUIPMENT: "warning",
   MISC: "destructive",
 };
 

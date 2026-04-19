@@ -57,6 +57,13 @@ const EXPENSE_TYPES: Expense["type"][] = [
   "MAINTENANCE",
   "DRIVER_COST",
   "TOLL",
+  "INSURANCE",
+  "PARKING",
+  "PERMITS",
+  "REPAIRS",
+  "CLEANING",
+  "MEALS",
+  "EQUIPMENT",
   "MISC",
 ];
 
@@ -65,6 +72,13 @@ const typeVariant: Record<Expense["type"], "default" | "warning" | "secondary" |
   MAINTENANCE: "warning",
   DRIVER_COST: "secondary",
   TOLL: "outline",
+  INSURANCE: "secondary",
+  PARKING: "outline",
+  PERMITS: "secondary",
+  REPAIRS: "warning",
+  CLEANING: "secondary",
+  MEALS: "secondary",
+  EQUIPMENT: "warning",
   MISC: "destructive",
 };
 
@@ -187,14 +201,14 @@ export default function ExpensesPage() {
                 </div>
                 <div className="mb-4 space-y-1.5">
                   <Label>Type</Label>
-                  <Select value={type} onValueChange={(v: string | null) => { if (v) setType(v as Expense["type"]); }}>
+                  <Select value={type} onValueChange={(v) => setType(v as Expense["type"])}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select expense type" />
                     </SelectTrigger>
                     <SelectContent>
                       {EXPENSE_TYPES.map((t) => (
                         <SelectItem key={t} value={t}>
-                          {t.replace("_", " ")}
+                          {t.replace(/_/g, " ")}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -315,7 +329,7 @@ export default function ExpensesPage() {
               <SelectItem value="">All Types</SelectItem>
               {EXPENSE_TYPES.map((t) => (
                 <SelectItem key={t} value={t}>
-                  {t.replace("_", " ")}
+                  {t.replace(/_/g, " ")}
                 </SelectItem>
               ))}
             </SelectContent>
