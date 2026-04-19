@@ -9,5 +9,7 @@ export interface AuthUser {
 export type AuthEnv = {
 	Variables: {
 		user: AuthUser;
+		businessId?: string;
+		planName?: string;
 	};
 };

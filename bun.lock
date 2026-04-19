@@ -72,6 +72,7 @@
         "@node-rs/argon2": "^2.0.2",
         "@zendak/db": "workspace:*",
         "@zendak/env": "workspace:*",
+        "@zendak/plans": "workspace:*",
         "dotenv": "catalog:",
         "hono": "^4.8.2",
         "jose": "^6.2.2",
@@ -93,6 +94,7 @@
         "@hugeicons/core-free-icons": "^4.1.1",
         "@prisma/client": "catalog:",
         "@zendak/env": "workspace:*",
+        "@zendak/plans": "workspace:*",
         "@zendak/ui": "workspace:*",
         "babel-plugin-react-compiler": "^1.0.0",
         "dotenv": "catalog:",
@@ -147,6 +149,13 @@
       },
       "devDependencies": {
         "@types/bun": "catalog:",
+        "@zendak/config": "workspace:*",
+        "typescript": "^5",
+      },
+    },
+    "packages/plans": {
+      "name": "@zendak/plans",
+      "devDependencies": {
         "@zendak/config": "workspace:*",
         "typescript": "^5",
       },
@@ -951,6 +960,8 @@
     "@zendak/db": ["@zendak/db@workspace:packages/db"],
 
     "@zendak/env": ["@zendak/env@workspace:packages/env"],
+
+    "@zendak/plans": ["@zendak/plans@workspace:packages/plans"],
 
     "@zendak/ui": ["@zendak/ui@workspace:packages/ui"],
 

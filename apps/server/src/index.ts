@@ -5,10 +5,12 @@ import { logger } from "hono/logger";
 
 import { AppError } from "./lib/errors";
 import { authRoutes } from "./modules/auth/auth.routes";
+import { billingRoutes } from "./modules/billing/billing.routes";
 import { driversRoutes } from "./modules/drivers/drivers.routes";
 import { expensesRoutes } from "./modules/expenses/expenses.routes";
 import { onboardingRoutes } from "./modules/onboarding/onboarding.routes";
 import { profitRoutes } from "./modules/profit/profit.routes";
+import { reportsRoutes } from "./modules/reports/reports.routes";
 import { revenueRoutes } from "./modules/revenue/revenue.routes";
 import { tripsRoutes } from "./modules/trips/trips.routes";
 import { trucksRoutes } from "./modules/trucks/trucks.routes";
@@ -32,6 +34,8 @@ app.get("/", (c) => {
 // ─── Module Routes ──────────────────────────────────────
 app.route("/api/auth", authRoutes);
 app.route("/api/onboarding", onboardingRoutes);
+app.route("/api/billing", billingRoutes);
+app.route("/api/reports", reportsRoutes);
 app.route("/api/trucks", trucksRoutes);
 app.route("/api/drivers", driversRoutes);
 app.route("/api/trips", tripsRoutes);
