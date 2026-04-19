@@ -121,6 +121,7 @@ export default function ExpensesPage() {
   const [description, setDescription] = useState("");
   const [tripId, setTripId] = useState("");
   const [truckId, setTruckId] = useState("");
+  const [driverId, setDriverId] = useState("");
 
   function resetForm() {
     setAmount("");
@@ -128,6 +129,7 @@ export default function ExpensesPage() {
     setDescription("");
     setTripId("");
     setTruckId("");
+    setDriverId("");
   }
 
   async function handleCreate(e: React.FormEvent) {
@@ -139,6 +141,7 @@ export default function ExpensesPage() {
     if (description) input.description = description;
     if (tripId) input.tripId = tripId;
     if (truckId) input.truckId = truckId;
+    if (driverId) input.driverId = driverId;
     try {
       await createExpense(input);
       toast.success("Expense added");
@@ -243,6 +246,17 @@ export default function ExpensesPage() {
                     placeholder="Select a truck"
                     getLabel={(t) => t.plateNumber}
                     getValue={(t) => t.id}
+                  />
+                </div>
+                <div className="mb-4 space-y-1.5">
+                  <Label>Driver (optional)</Label>
+                  <SearchSelect<{ id: string; user: { name: string } }>
+                    value={driverId}
+                    onChange={setDriverId}
+                    endpoint="/api/drivers/search"
+                    placeholder="Select a driver"
+                    getLabel={(d) => d.user.name}
+                    getValue={(d) => d.id}
                   />
                 </div>
               </div>
@@ -356,6 +370,7 @@ export default function ExpensesPage() {
                   <TableHead>Amount</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Description</TableHead>
+                  <TableHead>Driver</TableHead>
                   <TableHead>Trip</TableHead>
                   <TableHead>Truck</TableHead>
                   <TableHead>Date</TableHead>
@@ -374,6 +389,9 @@ export default function ExpensesPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>{expense.description ?? "—"}</TableCell>
+                    <TableCell>
+                      {expense.driver?.user.name ?? "—"}
+                    </TableCell>
                     <TableCell>
                       {expense.trip
                         ? `${expense.trip.origin} → ${expense.trip.destination}`
