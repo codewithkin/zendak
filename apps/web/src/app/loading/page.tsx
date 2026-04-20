@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { Icon } from "@zendak/ui/components/icon";
 
 import { useMe } from "@/hooks/use-auth";
+import { useSubscription } from "@/hooks/use-billing";
 
 const ROLE_ROUTES = {
   ADMIN: "/dashboard/admin",
@@ -21,9 +22,12 @@ type Role = keyof typeof ROLE_ROUTES;
 export default function Loading() {
   const router = useRouter();
   const { user, isLoading, error } = useMe();
+  const { subscription, isLoading: subLoading } = useSubscription(
+    user?.businessId ?? null,
+  );
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || subLoading) return;
 
     if (error || !user) {
       router.replace("/sign-in" as never);
@@ -35,11 +39,27 @@ export default function Loading() {
       return;
     }
 
+    // Check subscription for admin users
+    if (user.role === "ADMIN") {
+      const hasActiveSub =
+        subscription?.subscriptionStatus === "TRIAL" ||
+        subscription?.subscriptionStatus === "ACTIVE";
+      const isTrialValid =
+        subscription?.subscriptionStatus === "TRIAL" &&
+        subscription?.trialEndsAt &&
+        new Date(subscription.trialEndsAt) > new Date();
+
+      if (!hasActiveSub || (subscription?.subscriptionStatus === "TRIAL" && !isTrialValid)) {
+        router.replace("/pricing" as never);
+        return;
+      }
+    }
+
     const route = ROLE_ROUTES[user.role as Role];
     if (route) {
       router.replace(route as never);
     }
-  }, [user, isLoading, error, router]);
+  }, [user, isLoading, error, router, subscription, subLoading]);
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-8">
