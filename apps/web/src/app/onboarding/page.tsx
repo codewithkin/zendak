@@ -630,13 +630,21 @@ function PhoneCountryCodeSelector({
           </svg>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-48 p-0" onPointerDown={(e) => e.preventDefault()}>
-        <div className="border-b border-neutral-200 p-2" onPointerDown={(e) => e.preventDefault()}>
+      <DropdownMenuContent align="start" className="w-48 p-0">
+        <div className="border-b border-neutral-200 p-2">
           <input
             type="text"
             placeholder="Search or enter code..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              e.stopPropagation();
+              if (e.key === "Escape") {
+                setOpen(false);
+              }
+            }}
             autoFocus
             className="w-full rounded border border-neutral-200 px-2 py-1.5 text-sm outline-none placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-200"
           />
@@ -665,7 +673,7 @@ function PhoneCountryCodeSelector({
             <button
               type="button"
               onClick={handleAddCustomCode}
-              className="w-full border-t border-neutral-200 px-2 py-2 text-left text-sm font-medium text-neutral-900 hover:bg-neutral-100"
+              className="w-full border-t border-neutral-200 px-2 py-2 text-center text-sm font-medium text-white bg-neutral-900 hover:bg-neutral-800"
             >
               Add "{search}"
             </button>
