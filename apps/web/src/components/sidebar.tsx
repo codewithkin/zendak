@@ -2,6 +2,8 @@
 
 import {
   Alert01Icon,
+  Alert02Icon,
+  AnalyticsUpIcon,
   DashboardSquare01Icon,
   DeliveryTruck02Icon,
   Invoice01Icon,
@@ -36,6 +38,8 @@ const allNavItems: NavItem[] = [
   { label: "Trips", href: "/dashboard/trips", icon: MapsLocation01Icon },
   { label: "Expenses", href: "/dashboard/expenses", icon: Invoice01Icon },
   { label: "Finance", href: "/dashboard/finance", icon: Wallet02Icon },
+  { label: "Issues", href: "/dashboard/issues", icon: Alert02Icon },
+  { label: "Reports", href: "/dashboard/reports", icon: AnalyticsUpIcon },
   { label: "Crash Reports", href: "/dashboard/crash-reports", icon: Alert01Icon },
   { label: "Users", href: "/dashboard/admin/users", icon: UserMultipleIcon },
 ];
@@ -46,15 +50,15 @@ function getNavItems(role: User["role"]): NavItem[] {
       return allNavItems;
     case "ACCOUNTANT":
       return allNavItems.filter((item) =>
-        ["Dashboard", "Expenses", "Finance"].includes(item.label),
+        ["Dashboard", "Expenses", "Finance", "Reports"].includes(item.label),
       );
     case "OPERATIONS":
       return allNavItems.filter((item) =>
-        ["Dashboard", "Trucks", "Drivers", "Trips", "Crash Reports"].includes(item.label),
+        ["Dashboard", "Trucks", "Drivers", "Trips", "Issues", "Reports", "Crash Reports"].includes(item.label),
       );
     case "DRIVER":
       return allNavItems.filter((item) =>
-        ["Dashboard", "Trips", "Crash Reports"].includes(item.label),
+        ["Dashboard", "Trips", "Issues", "Crash Reports"].includes(item.label),
       );
     default:
       return [allNavItems[0]];

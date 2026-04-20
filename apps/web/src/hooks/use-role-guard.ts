@@ -16,16 +16,22 @@ const ALLOWED_PAGES: Record<User["role"], string[]> = {
     "/dashboard/trips",
     "/dashboard/expenses",
     "/dashboard/finance",
+    "/dashboard/issues",
+    "/dashboard/reports",
+    "/dashboard/crash-reports",
   ],
-  ACCOUNTANT: ["/dashboard", "/dashboard/expenses", "/dashboard/finance"],
+  ACCOUNTANT: ["/dashboard", "/dashboard/expenses", "/dashboard/finance", "/dashboard/reports"],
   OPERATIONS: [
     "/dashboard",
     "/dashboard/ops",
     "/dashboard/trucks",
     "/dashboard/drivers",
     "/dashboard/trips",
+    "/dashboard/issues",
+    "/dashboard/reports",
+    "/dashboard/crash-reports",
   ],
-  DRIVER: ["/dashboard", "/dashboard/driver", "/dashboard/trips"],
+  DRIVER: ["/dashboard", "/dashboard/driver", "/dashboard/trips", "/dashboard/issues", "/dashboard/crash-reports"],
 };
 
 const DEFAULT_ROUTES: Record<User["role"], string> = {
