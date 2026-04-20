@@ -18,21 +18,21 @@ export async function generatePresignedUploadUrl(opts: {
 	maxSizeBytes: number;
 }): Promise<{ uploadUrl: string; publicUrl: string; key: string }> {
 	const command = new PutObjectCommand({
-		Bucket: env.R2_BUCKET,
+		Bucket: env.R2_BUCKET_NAME,
 		Key: opts.key,
 		ContentType: opts.contentType,
 		ContentLength: opts.maxSizeBytes,
 	});
 
 	const uploadUrl = await getSignedUrl(r2, command, { expiresIn: 600 });
-	const publicUrl = `https://${env.R2_BUCKET}.${env.R2_ACCOUNT_ID}.r2.dev/${opts.key}`;
+	const publicUrl = `${env.R2_PUBLIC_URL}/${opts.key}`;
 
 	return { uploadUrl, publicUrl, key: opts.key };
 }
 
 export async function deleteR2Object(key: string): Promise<void> {
 	const command = new DeleteObjectCommand({
-		Bucket: env.R2_BUCKET,
+		Bucket: env.R2_BUCKET_NAME,
 		Key: key,
 	});
 	await r2.send(command);
