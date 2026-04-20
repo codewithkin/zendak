@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Icon } from "@zendak/ui/components/icon";
 
 import { ModeToggle } from "./mode-toggle";
+import { NotificationBell } from "./notification-bell";
 
 export default function Header() {
   const links = [{ to: "/", label: "Workspace" }] as const;
@@ -31,6 +32,7 @@ export default function Header() {
           })}
         </nav>
         <div className="flex items-center gap-2">
+          <NotificationBell />
           <ModeToggle />
         </div>
       </div>
