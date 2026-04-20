@@ -31,7 +31,9 @@ export type Feature =
 	| "multi_branch"
 	| "scheduled_reports"
 	| "custom_roles"
-	| "priority_support";
+	| "priority_support"
+	| "crash_reports"
+	| "file_uploads";
 
 // ─── Plan Limits ────────────────────────────────────────
 
@@ -39,7 +41,13 @@ export interface PlanLimits {
 	maxTrucks: number;
 	maxUsers: number;
 	maxTripsPerMonth: number;
+	maxStorageBytes: number;
 }
+
+// ─── Storage Constants ──────────────────────────────────
+
+const GB = 1024 * 1024 * 1024;
+const TB = 1024 * GB;
 
 // ─── Plan Definition ────────────────────────────────────
 
@@ -69,6 +77,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
 			maxTrucks: 3,
 			maxUsers: 3,
 			maxTripsPerMonth: 50,
+			maxStorageBytes: 10 * GB,
 		},
 		features: [
 			"fleet_management",
@@ -76,6 +85,8 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
 			"trip_tracking",
 			"basic_expense_logging",
 			"basic_pdf_reports",
+			"crash_reports",
+			"file_uploads",
 		],
 	},
 	CONTROL: {
@@ -88,6 +99,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
 			maxTrucks: 15,
 			maxUsers: 10,
 			maxTripsPerMonth: 300,
+			maxStorageBytes: 200 * GB,
 		},
 		features: [
 			"fleet_management",
@@ -100,6 +112,8 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
 			"advanced_reports",
 			"filtered_pdf_reports",
 			"full_rbac",
+			"crash_reports",
+			"file_uploads",
 		],
 	},
 	COMMAND: {
@@ -111,6 +125,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
 			maxTrucks: 50,
 			maxUsers: 25,
 			maxTripsPerMonth: 1000,
+			maxStorageBytes: 500 * GB,
 		},
 		features: [
 			"fleet_management",
@@ -129,6 +144,8 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
 			"invoice_generation",
 			"document_management",
 			"audit_logs",
+			"crash_reports",
+			"file_uploads",
 		],
 	},
 	ENTERPRISE: {
@@ -140,6 +157,7 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
 			maxTrucks: Infinity,
 			maxUsers: Infinity,
 			maxTripsPerMonth: Infinity,
+			maxStorageBytes: 1.5 * TB,
 		},
 		features: [
 			"fleet_management",
@@ -163,6 +181,8 @@ export const PLANS: Record<PlanName, PlanDefinition> = {
 			"scheduled_reports",
 			"custom_roles",
 			"priority_support",
+			"crash_reports",
+			"file_uploads",
 		],
 	},
 };
@@ -200,4 +220,11 @@ export function getUpgradePlan(currentPlan: PlanName): PlanName | null {
 /** Human-readable limit label */
 export function formatLimit(value: number): string {
 	return value === Infinity ? "Unlimited" : value.toString();
+}
+
+/** Human-readable storage label */
+export function formatStorage(bytes: number): string {
+	if (bytes >= TB) return `${(bytes / TB).toFixed(1)}TB`;
+	if (bytes >= GB) return `${Math.round(bytes / GB)}GB`;
+	return `${Math.round(bytes / (1024 * 1024))}MB`;
 }
