@@ -591,20 +591,24 @@ function PhoneCountryCodeSelector({
   value: string;
   onChange: (code: string) => void;
 }) {
-  const [isAddingCustom, setIsAddingCustom] = useState(false);
-  const [customCode, setCustomCode] = useState("");
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const filteredCountries = COUNTRIES.filter(
+    (country) =>
+      country.code.includes(search) || country.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleAddCustomCode = () => {
-    const trimmed = customCode.trim();
-    if (trimmed && /^\+\d+$/.test(trimmed)) {
-      onChange(trimmed);
-      setCustomCode("");
-      setIsAddingCustom(false);
+    if (search.trim()) {
+      onChange(search.trim());
+      setSearch("");
+      setOpen(false);
     }
   };
 
   return (
-    <DropdownMenu open={undefined}>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
@@ -626,56 +630,45 @@ function PhoneCountryCodeSelector({
           </svg>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-40">
-        {COUNTRIES.map((country) => (
-          <DropdownMenuItem
-            key={country.code}
-            onClick={() => onChange(country.code)}
-            className={`cursor-pointer ${
-              value === country.code
-                ? "bg-neutral-100 font-medium text-neutral-900"
-                : ""
-            }`}
-          >
-            <span className="text-sm">
-              {country.code} • {country.name}
-            </span>
-          </DropdownMenuItem>
-        ))}
-        <div className="border-t border-neutral-200 px-2 py-2">
-          {!isAddingCustom ? (
+      <DropdownMenuContent align="start" className="w-48 p-0" onPointerDown={(e) => e.preventDefault()}>
+        <div className="border-b border-neutral-200 p-2" onPointerDown={(e) => e.preventDefault()}>
+          <input
+            type="text"
+            placeholder="Search or enter code..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            autoFocus
+            className="w-full rounded border border-neutral-200 px-2 py-1.5 text-sm outline-none placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-200"
+          />
+        </div>
+        <div className="max-h-48 overflow-y-auto">
+          {filteredCountries.map((country) => (
+            <DropdownMenuItem
+              key={country.code}
+              onClick={() => {
+                onChange(country.code);
+                setSearch("");
+                setOpen(false);
+              }}
+              className={`cursor-pointer ${
+                value === country.code
+                  ? "bg-neutral-100 font-medium text-neutral-900"
+                  : ""
+              }`}
+            >
+              <span className="text-sm">
+                {country.code} • {country.name}
+              </span>
+            </DropdownMenuItem>
+          ))}
+          {filteredCountries.length < 5 && search.trim() && (
             <button
               type="button"
-              onClick={() => setIsAddingCustom(true)}
-              className="w-full rounded px-2 py-1.5 text-left text-xs font-medium text-neutral-600 hover:bg-neutral-100"
+              onClick={handleAddCustomCode}
+              className="w-full border-t border-neutral-200 px-2 py-2 text-left text-sm font-medium text-neutral-900 hover:bg-neutral-100"
             >
-              + Add country code
+              Add "{search}"
             </button>
-          ) : (
-            <div className="flex gap-1">
-              <input
-                type="text"
-                placeholder="+XXX"
-                value={customCode}
-                onChange={(e) => setCustomCode(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleAddCustomCode();
-                  if (e.key === "Escape") {
-                    setIsAddingCustom(false);
-                    setCustomCode("");
-                  }
-                }}
-                autoFocus
-                className="flex-1 rounded border border-neutral-200 px-2 py-1 text-xs outline-none placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-200"
-              />
-              <button
-                type="button"
-                onClick={handleAddCustomCode}
-                className="rounded bg-neutral-900 px-2 py-1 text-xs font-medium text-white hover:bg-neutral-800"
-              >
-                Add
-              </button>
-            </div>
           )}
         </div>
       </DropdownMenuContent>
