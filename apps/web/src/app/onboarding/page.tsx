@@ -130,7 +130,7 @@ export default function OnboardingPage() {
   }
 
   function nextStep() {
-    if (step < 4) setStep(step + 1);
+    if (step < 5) setStep(step + 1);
   }
 
   function prevStep() {
@@ -207,11 +207,11 @@ export default function OnboardingPage() {
         <div className="w-full max-w-[440px]">
           {/* Progress indicator */}
           <div className="mb-8 flex gap-2">
-            {[1, 2, 3, 4].map((s) => (
+            {[1, 2, 3, 4, 5].map((s) => (
               <div
                 key={s}
                 className={`h-1 flex-1 rounded-full transition-colors ${
-                  s <= step ? "bg-neutral-900" : "bg-neutral-200"
+                  s <= step ? "bg-primary" : "bg-neutral-200"
                 }`}
               />
             ))}
@@ -244,7 +244,7 @@ export default function OnboardingPage() {
               >
                 <StepTrucks
                   value={form.truckCount}
-                  onSelect={(count) =>
+                  onSelect={(count: number) =>
                     setForm((prev) => ({ ...prev, truckCount: count }))
                   }
                 />
@@ -261,7 +261,7 @@ export default function OnboardingPage() {
               >
                 <StepEmployees
                   value={form.employeeCount}
-                  onSelect={(count) =>
+                  onSelect={(count: number) =>
                     setForm((prev) => ({ ...prev, employeeCount: count }))
                   }
                 />
@@ -278,7 +278,7 @@ export default function OnboardingPage() {
               >
                 <StepTMSExperience
                   value={form.hasPreviousTMSExperience}
-                  onSelect={(value) =>
+                  onSelect={(value: boolean) =>
                     setForm((prev) => ({
                       ...prev,
                       hasPreviousTMSExperience: value,
@@ -287,12 +287,24 @@ export default function OnboardingPage() {
                 />
               </motion.div>
             )}
+
+            {step === 5 && (
+              <motion.div
+                key="step5"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <StepThankYou />
+              </motion.div>
+            )}
           </AnimatePresence>
 
           {/* Navigation buttons */}
           <div className="mt-8 flex gap-3">
-            {step > 1 && (
-              <Button variant="outline" onClick={prevStep} className="flex-1">
+            {step > 1 && step < 5 && (
+              <Button variant="outline" onClick={prevStep} className="flex-1 border-neutral-300 text-neutral-700 hover:text-neutral-900">
                 Back
               </Button>
             )}
@@ -306,13 +318,22 @@ export default function OnboardingPage() {
                 }
                 className="flex-1"
               >
-                Next
+                Continue
               </Button>
             )}
             {step === 4 && (
               <Button
+                onClick={nextStep}
+                disabled={!isStep4Complete}
+                className="flex-1"
+              >
+                Continue
+              </Button>
+            )}
+            {step === 5 && (
+              <Button
                 onClick={handleSubmit}
-                disabled={!isStep4Complete || isLoading}
+                disabled={isLoading}
                 className="flex-1"
               >
                 {isLoading ? "Launching…" : "Launch workspace"}
@@ -338,7 +359,7 @@ function StepBusinessData({
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
+        <h1 className="text-xl font-semibold tracking-tight text-primary">
           Business Information
         </h1>
         <p className="mt-1.5 text-sm text-neutral-500">
@@ -433,11 +454,11 @@ function StepTrucks({ value, onSelect }: any) {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
-          How many trucks?
+        <h1 className="text-xl font-semibold tracking-tight text-primary">
+          Fleet size
         </h1>
         <p className="mt-1.5 text-sm text-neutral-500">
-          Select the range that best fits your fleet.
+          How many vehicles does your fleet operate?
         </p>
       </div>
 
@@ -449,14 +470,14 @@ function StepTrucks({ value, onSelect }: any) {
             onClick={() => onSelect(option.value)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className={`rounded-xl border-2 p-4 text-center transition-all ${
+            className={`rounded-xl border-2 p-5 text-center transition-all ${
               value === option.value
-                ? "border-neutral-900 bg-neutral-900 text-white"
-                : "border-neutral-200 bg-white text-neutral-900 hover:border-neutral-300"
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-neutral-200 bg-white hover:border-primary/30"
             }`}
           >
-            <p className="text-2xl font-semibold">{option.label}</p>
-            <p className="mt-1 text-xs text-neutral-500">trucks</p>
+            <p className={`text-2xl font-bold ${value === option.value ? "text-primary-foreground" : "text-primary"}`}>{option.label}</p>
+            <p className={`mt-1 text-xs ${value === option.value ? "text-primary-foreground/70" : "text-neutral-400"}`}>vehicles</p>
           </motion.button>
         ))}
       </div>
@@ -469,11 +490,11 @@ function StepEmployees({ value, onSelect }: any) {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
+        <h1 className="text-xl font-semibold tracking-tight text-primary">
           Team size
         </h1>
         <p className="mt-1.5 text-sm text-neutral-500">
-          How many employees do you have?
+          How many people are on your team?
         </p>
       </div>
 
@@ -485,14 +506,14 @@ function StepEmployees({ value, onSelect }: any) {
             onClick={() => onSelect(option.value)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className={`rounded-xl border-2 p-4 text-center transition-all ${
+            className={`rounded-xl border-2 p-5 text-center transition-all ${
               value === option.value
-                ? "border-neutral-900 bg-neutral-900 text-white"
-                : "border-neutral-200 bg-white text-neutral-900 hover:border-neutral-300"
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-neutral-200 bg-white hover:border-primary/30"
             }`}
           >
-            <p className="text-2xl font-semibold">{option.label}</p>
-            <p className="mt-1 text-xs text-neutral-500">employees</p>
+            <p className={`text-2xl font-bold ${value === option.value ? "text-primary-foreground" : "text-primary"}`}>{option.label}</p>
+            <p className={`mt-1 text-xs ${value === option.value ? "text-primary-foreground/70" : "text-neutral-400"}`}>employees</p>
           </motion.button>
         ))}
       </div>
@@ -505,11 +526,11 @@ function StepTMSExperience({ value, onSelect }: any) {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
-          Transport management experience
+        <h1 className="text-xl font-semibold tracking-tight text-primary">
+          Previous TMS experience
         </h1>
         <p className="mt-1.5 text-sm text-neutral-500">
-          Have you used transport management software before?
+          Have you used fleet or transport management software before?
         </p>
       </div>
 
@@ -521,11 +542,11 @@ function StepTMSExperience({ value, onSelect }: any) {
           whileTap={{ scale: 0.98 }}
           className={`flex-1 rounded-xl border-2 p-6 text-center transition-all ${
             value === true
-              ? "border-neutral-900 bg-neutral-900 text-white"
-              : "border-neutral-200 bg-white text-neutral-900 hover:border-neutral-300"
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-neutral-200 bg-white hover:border-primary/30"
           }`}
         >
-          <p className="text-lg font-semibold">Yes</p>
+          <p className={`text-lg font-semibold ${value === true ? "text-primary-foreground" : "text-primary"}`}>Yes</p>
         </motion.button>
         <motion.button
           type="button"
@@ -534,13 +555,49 @@ function StepTMSExperience({ value, onSelect }: any) {
           whileTap={{ scale: 0.98 }}
           className={`flex-1 rounded-xl border-2 p-6 text-center transition-all ${
             value === false
-              ? "border-neutral-900 bg-neutral-900 text-white"
-              : "border-neutral-200 bg-white text-neutral-900 hover:border-neutral-300"
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-neutral-200 bg-white hover:border-primary/30"
           }`}
         >
-          <p className="text-lg font-semibold">No</p>
+          <p className={`text-lg font-semibold ${value === false ? "text-primary-foreground" : "text-primary"}`}>No</p>
         </motion.button>
       </div>
+    </div>
+  );
+}
+
+// ── Step 5: Thank You ──
+function StepThankYou() {
+  return (
+    <div className="flex flex-col items-center text-center">
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+        className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10"
+      >
+        <svg className="h-8 w-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+        </svg>
+      </motion.div>
+
+      <motion.h1
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="text-2xl font-semibold tracking-tight text-primary"
+      >
+        You&apos;re all set
+      </motion.h1>
+
+      <motion.p
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="mt-3 max-w-xs text-sm leading-relaxed text-neutral-500"
+      >
+        Thanks for your patience — your workspace is ready to go. Hit launch and start managing your fleet, trips, and operations from one place.
+      </motion.p>
     </div>
   );
 }
@@ -609,26 +666,23 @@ function PhoneCountryCodeSelector({
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="flex h-10 w-24 items-center justify-between rounded-lg border border-input bg-transparent px-2 text-sm text-neutral-900 outline-none transition-colors hover:bg-neutral-50 focus:ring-2 focus:ring-neutral-200"
+      <DropdownMenuTrigger
+        className="flex h-10 w-24 items-center justify-between rounded-lg border border-input bg-transparent px-2 text-sm text-neutral-900 outline-none transition-colors hover:bg-neutral-50 focus:ring-2 focus:ring-neutral-200"
+      >
+        <span className="font-medium">{value}</span>
+        <svg
+          className="h-4 w-4 text-neutral-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          <span className="font-medium">{value}</span>
-          <svg
-            className="h-4 w-4 text-neutral-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 14l-7 7m0 0l-7-7m7 7V3"
-            />
-          </svg>
-        </button>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 14l-7 7m0 0l-7-7m7 7V3"
+          />
+        </svg>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-48 p-0">
         <div className="border-b border-neutral-200 p-2">
