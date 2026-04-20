@@ -1,6 +1,7 @@
 "use client";
 
 import { DeliveryTruck02Icon, LockPasswordIcon, Mail01Icon, UserAdd01Icon, UserCircleIcon } from "@hugeicons/core-free-icons";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -31,8 +32,18 @@ export default function SignUpPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm space-y-8">
-        <div className="flex flex-col items-center gap-2">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-sm space-y-8"
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="flex flex-col items-center gap-2"
+        >
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <Icon icon={DeliveryTruck02Icon} size={24} />
           </div>
@@ -40,9 +51,15 @@ export default function SignUpPage() {
           <p className="text-sm text-muted-foreground">
             Start managing fleet movement, dispatch, and finance from one Zendak workspace.
           </p>
-        </div>
+        </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <motion.form
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          onSubmit={handleSubmit}
+          className="space-y-4"
+        >
           <div className="space-y-2">
             <Label htmlFor="name" className="flex items-center gap-2">
               <Icon icon={UserCircleIcon} size={14} className="text-muted-foreground" />
@@ -96,15 +113,20 @@ export default function SignUpPage() {
             <Icon icon={UserAdd01Icon} size={16} />
             {isLoading ? "Creating account…" : "Create account"}
           </Button>
-        </form>
+        </motion.form>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-center text-sm text-muted-foreground"
+        >
           Already have an account?{" "}
           <a href="/sign-in" className="text-primary underline-offset-4 hover:underline">
             Sign in to your Zendak control center
           </a>
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </div>
   );
 }
