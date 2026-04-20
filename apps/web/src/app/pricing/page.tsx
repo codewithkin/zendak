@@ -23,12 +23,7 @@ import { useCreateCheckout, useSubscription } from "@/hooks/use-billing";
 
 const PLAN_ORDER: PlanName[] = ["FOUNDATION", "CONTROL", "COMMAND", "ENTERPRISE"];
 
-const PLAN_CTA: Record<PlanName, string> = {
-	FOUNDATION: "Start Foundation",
-	CONTROL: "Upgrade to Control",
-	COMMAND: "Go Command",
-	ENTERPRISE: "Unlock Enterprise",
-};
+const PLAN_CTA = "Start 3-day free trial";
 
 export default function PricingPage() {
 	const router = useRouter();
@@ -46,11 +41,8 @@ export default function PricingPage() {
 
 		try {
 			const result = await createCheckout(planName, user.businessId);
-			// For now, simulate payment by marking paid and redirecting
-			// In production, redirect to Polar checkout URL
-			router.push(
-				`/payments/success?intermediatePayment=${result.paymentId}`,
-			);
+			// Redirect to Polar hosted checkout
+			window.location.href = result.checkoutUrl;
 		} catch {
 			toast.error("Failed to start checkout. Please try again.");
 		}
@@ -126,7 +118,7 @@ export default function PricingPage() {
 								plan={plan}
 								isCurrent={isCurrent}
 								isPopular={isPopular}
-								ctaLabel={PLAN_CTA[planName]}
+								ctaLabel={PLAN_CTA}
 								isLoading={checkoutLoading}
 								onSelect={() => handleSelectPlan(planName)}
 							/>
