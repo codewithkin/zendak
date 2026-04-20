@@ -13,6 +13,12 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@zendak/ui/components/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from "@zendak/ui/components/dropdown-menu";
 import { Icon } from "@zendak/ui/components/icon";
 import { Input } from "@zendak/ui/components/input";
 import { Label } from "@zendak/ui/components/label";
@@ -78,7 +84,8 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     businessName: "",
-    country: COUNTRIES[2],
+    country: "",
+    countryCode: COUNTRIES[2].code, // Kenya by default
     address: "",
     phone: "",
     truckCount: 0,
@@ -110,10 +117,10 @@ export default function OnboardingPage() {
     try {
       await submitOnboarding({
         businessName: form.businessName,
-        location: `${form.address}, ${form.country.name}`,
+        location: `${form.address}, ${form.country}`,
         truckCount: form.truckCount,
         employeeCount: form.employeeCount,
-        phone: form.phone ? `${form.country.code} ${form.phone}` : undefined,
+        phone: form.phone ? `${form.countryCode} ${form.phone}` : undefined,
       });
       toast.success("Workspace set up successfully");
       router.replace("/dashboard/admin" as never);
@@ -131,7 +138,7 @@ export default function OnboardingPage() {
   }
 
   const isStep1Complete =
-    form.businessName.trim() && form.address.trim() && form.phone.trim();
+    form.businessName.trim() && form.country.trim() && form.address.trim() && form.phone.trim();
   const isStep2Complete = form.truckCount > 0;
   const isStep3Complete = form.employeeCount > 0;
   const isStep4Complete = form.hasPreviousTMSExperience !== null;
@@ -222,9 +229,6 @@ export default function OnboardingPage() {
                 <StepBusinessData
                   form={form}
                   handleChange={handleChange}
-                  onSelectCountry={(country: typeof COUNTRIES[0]) => {
-                    setForm((prev) => ({ ...prev, country }));
-                  }}
                   setForm={setForm}
                 />
               </motion.div>
@@ -329,7 +333,6 @@ export default function OnboardingPage() {
 function StepBusinessData({
   form,
   handleChange,
-  onSelectCountry,
   setForm,
 }: any) {
   return (
@@ -368,9 +371,13 @@ function StepBusinessData({
             label="Primary country"
             required
           >
-            <CountrySelector
+            <Input
+              id="country"
+              name="country"
+              placeholder="e.g., Kenya"
               value={form.country}
-              onChange={onSelectCountry}
+              onChange={(e) => setForm((prev: any) => ({ ...prev, country: e.target.value }))}
+              required
             />
           </FieldCard>
 
@@ -397,24 +404,12 @@ function StepBusinessData({
             required
           >
             <div className="flex gap-2">
-              <div className="w-24">
-                <select
-                  value={form.country.code}
-                  onChange={(e) => {
-                    const selected = COUNTRIES.find((c) => c.code === e.target.value);
-                    if (selected) {
-                      setForm((prev: any) => ({ ...prev, country: selected }));
-                    }
-                  }}
-                  className="h-10 w-full rounded-lg border border-input bg-transparent px-2 text-sm text-neutral-900 outline-none transition-colors"
-                >
-                  {COUNTRIES.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.code}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <PhoneCountryCodeSelector
+                value={form.countryCode}
+                onChange={(code) =>
+                  setForm((prev: any) => ({ ...prev, countryCode: code }))
+                }
+              />
               <Input
                 id="phone"
                 name="phone"
@@ -588,62 +583,36 @@ function FieldCard({
   );
 }
 
-// ── Country Selector Component ──
-function CountrySelector({
+// ── Phone Country Code Selector Component ──
+function PhoneCountryCodeSelector({
   value,
   onChange,
 }: {
-  value: (typeof COUNTRIES)[0];
-  onChange: (country: (typeof COUNTRIES)[0]) => void;
+  value: string;
+  onChange: (code: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [isAddingCustom, setIsAddingCustom] = useState(false);
+  const [customCode, setCustomCode] = useState("");
 
-  const filtered = COUNTRIES.filter((c) => {
-    const searchLower = search.toLowerCase();
-    return (
-      c.name.toLowerCase().includes(searchLower) ||
-      c.code.toLowerCase().includes(searchLower)
-    );
-  });
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        !inputRef.current?.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
+  const handleAddCustomCode = () => {
+    const trimmed = customCode.trim();
+    if (trimmed && /^\+\d+$/.test(trimmed)) {
+      onChange(trimmed);
+      setCustomCode("");
+      setIsAddingCustom(false);
     }
-
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-      setTimeout(() => inputRef.current?.focus(), 0);
-    }
-
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
+  };
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-left text-sm text-neutral-900 outline-none transition-colors hover:bg-neutral-50 focus:ring-2 focus:ring-neutral-200"
-      >
-        <div className="flex items-center justify-between">
-          <span className="flex items-center gap-2">
-            {value.name}
-            <span className="text-neutral-500">({value.code})</span>
-          </span>
+    <DropdownMenu open={undefined}>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="flex h-10 w-24 items-center justify-between rounded-lg border border-input bg-transparent px-2 text-sm text-neutral-900 outline-none transition-colors hover:bg-neutral-50 focus:ring-2 focus:ring-neutral-200"
+        >
+          <span className="font-medium">{value}</span>
           <svg
-            className={`h-4 w-4 text-neutral-500 transition-transform ${
-              open ? "rotate-180" : ""
-            }`}
+            className="h-4 w-4 text-neutral-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -655,72 +624,61 @@ function CountrySelector({
               d="M19 14l-7 7m0 0l-7-7m7 7V3"
             />
           </svg>
-        </div>
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            ref={dropdownRef}
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.15 }}
-            className="absolute top-full z-50 mt-2 w-full rounded-lg border border-neutral-200 bg-white shadow-lg"
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-40">
+        {COUNTRIES.map((country) => (
+          <DropdownMenuItem
+            key={country.code}
+            onClick={() => onChange(country.code)}
+            className={`cursor-pointer ${
+              value === country.code
+                ? "bg-neutral-100 font-medium text-neutral-900"
+                : ""
+            }`}
           >
-            {/* Search input */}
-            <div className="relative border-b border-neutral-200 p-2">
-              <Icon
-                icon={Search01Icon}
-                size={16}
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
-              />
+            <span className="text-sm">
+              {country.code} • {country.name}
+            </span>
+          </DropdownMenuItem>
+        ))}
+        <div className="border-t border-neutral-200 px-2 py-2">
+          {!isAddingCustom ? (
+            <button
+              type="button"
+              onClick={() => setIsAddingCustom(true)}
+              className="w-full rounded px-2 py-1.5 text-left text-xs font-medium text-neutral-600 hover:bg-neutral-100"
+            >
+              + Add country code
+            </button>
+          ) : (
+            <div className="flex gap-1">
               <input
-                ref={inputRef}
                 type="text"
-                placeholder="Search by name or code..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-transparent pl-8 pr-3 py-2 text-xs text-neutral-900 outline-none placeholder:text-neutral-400"
+                placeholder="+XXX"
+                value={customCode}
+                onChange={(e) => setCustomCode(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleAddCustomCode();
+                  if (e.key === "Escape") {
+                    setIsAddingCustom(false);
+                    setCustomCode("");
+                  }
+                }}
+                autoFocus
+                className="flex-1 rounded border border-neutral-200 px-2 py-1 text-xs outline-none placeholder:text-neutral-400 focus:border-neutral-400 focus:ring-1 focus:ring-neutral-200"
               />
+              <button
+                type="button"
+                onClick={handleAddCustomCode}
+                className="rounded bg-neutral-900 px-2 py-1 text-xs font-medium text-white hover:bg-neutral-800"
+              >
+                Add
+              </button>
             </div>
-
-            {/* Country list */}
-            <div className="max-h-56 overflow-y-auto">
-              {filtered.length > 0 ? (
-                filtered.map((country) => (
-                  <motion.button
-                    key={country.code}
-                    type="button"
-                    onClick={() => {
-                      onChange(country);
-                      setOpen(false);
-                      setSearch("");
-                    }}
-                    whileHover={{ backgroundColor: "rgba(0, 0, 0, 0.03)" }}
-                    className={`w-full px-3 py-2.5 text-left text-sm transition-colors ${
-                      value.code === country.code
-                        ? "bg-neutral-100 text-neutral-900 font-medium"
-                        : "text-neutral-700 hover:bg-neutral-50"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span>{country.name}</span>
-                      <span className="text-xs text-neutral-500">
-                        {country.code}
-                      </span>
-                    </div>
-                  </motion.button>
-                ))
-              ) : (
-                <div className="px-3 py-6 text-center text-xs text-neutral-400">
-                  No countries found
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+          )}
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
