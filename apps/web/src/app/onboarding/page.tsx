@@ -362,115 +362,118 @@ function StepBusinessData({
       </div>
 
       <form className="space-y-4">
-        <FieldCard
-          htmlFor="businessName"
-          icon={BuildingIcon}
-          label="Business name"
-          required
-        >
-          <Input
-            id="businessName"
-            name="businessName"
-            placeholder="Acme Logistics Ltd"
-            value={form.businessName}
-            onChange={handleChange}
+        {/* 2x2 Grid for 4 fields */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <FieldCard
+            htmlFor="businessName"
+            icon={BuildingIcon}
+            label="Business name"
             required
-          />
-        </FieldCard>
-
-        <FieldCard
-          htmlFor="country"
-          icon={LocationAdd01Icon}
-          label="Primary country"
-          required
-        >
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-              className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-left text-sm text-neutral-900 outline-none transition-colors"
-            >
-              {form.country.name} ({form.country.code})
-            </button>
-            {showCountryDropdown && (
-              <div className="absolute top-full z-10 mt-2 w-full rounded-lg border border-neutral-200 bg-white shadow-lg">
-                <input
-                  type="text"
-                  placeholder="Search countries..."
-                  value={countrySearch}
-                  onChange={(e) => setCountrySearch(e.target.value)}
-                  className="w-full border-b border-neutral-200 px-3 py-2 text-sm text-neutral-900 outline-none"
-                />
-                <div className="max-h-48 overflow-y-auto">
-                  {filteredCountries.map((country: typeof COUNTRIES[0]) => (
-                    <button
-                      key={country.code}
-                      type="button"
-                      onClick={() => onSelectCountry(country)}
-                      className="w-full px-3 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-50"
-                    >
-                      {country.name} ({country.code})
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </FieldCard>
-
-        <FieldCard
-          htmlFor="address"
-          icon={LocationAdd01Icon}
-          label="Primary address"
-          required
-        >
-          <Input
-            id="address"
-            name="address"
-            placeholder="e.g., Nairobi"
-            value={form.address}
-            onChange={handleChange}
-            required
-          />
-        </FieldCard>
-
-        <FieldCard
-          htmlFor="phone"
-          icon={PhoneCall}
-          label="Business phone"
-          required
-        >
-          <div className="flex gap-2">
-            <div className="w-24">
-              <select
-                value={form.country.code}
-                onChange={(e) => {
-                  const selected = COUNTRIES.find((c) => c.code === e.target.value);
-                  if (selected) {
-                    setForm((prev: any) => ({ ...prev, country: selected }));
-                  }
-                }}
-                className="h-10 w-full rounded-lg border border-input bg-transparent px-2 text-sm text-neutral-900 outline-none transition-colors"
-              >
-                {COUNTRIES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.code}
-                  </option>
-                ))}
-              </select>
-            </div>
+          >
             <Input
-              id="phone"
-              name="phone"
-              type="tel"
-              placeholder="700 000 000"
-              value={form.phone}
+              id="businessName"
+              name="businessName"
+              placeholder="Acme Logistics Ltd"
+              value={form.businessName}
               onChange={handleChange}
               required
-              className="flex-1"
             />
-          </div>
-        </FieldCard>
+          </FieldCard>
+
+          <FieldCard
+            htmlFor="country"
+            icon={LocationAdd01Icon}
+            label="Primary country"
+            required
+          >
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-left text-sm text-neutral-900 outline-none transition-colors"
+              >
+                {form.country.name} ({form.country.code})
+              </button>
+              {showCountryDropdown && (
+                <div className="absolute top-full z-10 mt-2 w-full rounded-lg border border-neutral-200 bg-white shadow-lg">
+                  <input
+                    type="text"
+                    placeholder="Search countries..."
+                    value={countrySearch}
+                    onChange={(e) => setCountrySearch(e.target.value)}
+                    className="w-full border-b border-neutral-200 px-3 py-2 text-sm text-neutral-900 outline-none"
+                  />
+                  <div className="max-h-48 overflow-y-auto">
+                    {filteredCountries.map((country: typeof COUNTRIES[0]) => (
+                      <button
+                        key={country.code}
+                        type="button"
+                        onClick={() => onSelectCountry(country)}
+                        className="w-full px-3 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-50"
+                      >
+                        {country.name} ({country.code})
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </FieldCard>
+
+          <FieldCard
+            htmlFor="address"
+            icon={LocationAdd01Icon}
+            label="Primary address"
+            required
+          >
+            <Input
+              id="address"
+              name="address"
+              placeholder="e.g., Nairobi"
+              value={form.address}
+              onChange={handleChange}
+              required
+            />
+          </FieldCard>
+
+          <FieldCard
+            htmlFor="phone"
+            icon={PhoneCall}
+            label="Business phone"
+            required
+          >
+            <div className="flex gap-2">
+              <div className="w-24">
+                <select
+                  value={form.country.code}
+                  onChange={(e) => {
+                    const selected = COUNTRIES.find((c) => c.code === e.target.value);
+                    if (selected) {
+                      setForm((prev: any) => ({ ...prev, country: selected }));
+                    }
+                  }}
+                  className="h-10 w-full rounded-lg border border-input bg-transparent px-2 text-sm text-neutral-900 outline-none transition-colors"
+                >
+                  {COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.code}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                placeholder="700 000 000"
+                value={form.phone}
+                onChange={handleChange}
+                required
+                className="flex-1"
+              />
+            </div>
+          </FieldCard>
+        </div>
       </form>
     </div>
   );
