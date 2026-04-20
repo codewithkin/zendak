@@ -10,7 +10,7 @@ export const onboardingRepository = {
 		ownerId: string;
 		trialEndsAt: Date;
 	}) {
-		return prisma.business.create({
+		const business = await prisma.business.create({
 			data: {
 				name: data.name,
 				location: data.location,
@@ -22,6 +22,12 @@ export const onboardingRepository = {
 				users: { connect: { id: data.ownerId } },
 			},
 		});
+
+		// Convert BigInt to string for JSON serialization
+		return {
+			...business,
+			storageUsedBytes: business.storageUsedBytes.toString(),
+		};
 	},
 
 	async markUserOnboarded(userId: string, businessId: string) {
