@@ -1,4 +1,4 @@
-import { AddCircleIcon, DashboardSquare01Icon, DeliveryTruck02Icon } from "@hugeicons/core-free-icons";
+import { AddCircleIcon, Alert01Icon, DashboardSquare01Icon, DeliveryTruck02Icon } from "@hugeicons/core-free-icons";
 import { Link } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { useThemeColor } from "heroui-native";
@@ -63,6 +63,22 @@ function DrawerLayout() {
                 <Icon icon={AddCircleIcon} size={24} color={themeColorForeground} />
               </Pressable>
             </Link>
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="create-report"
+        options={{
+          headerTitle: "New Crash Report",
+          drawerLabel: ({ color, focused }) => (
+            <Text style={{ color: focused ? color : themeColorForeground }}>New Report</Text>
+          ),
+          drawerIcon: ({ size, color, focused }) => (
+            <Icon
+              icon={Alert01Icon}
+              size={size}
+              color={focused ? color : themeColorForeground}
+            />
           ),
         }}
       />

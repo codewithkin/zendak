@@ -1,4 +1,4 @@
-import { DashboardSquare01Icon, Route02Icon } from "@hugeicons/core-free-icons";
+import { Alert01Icon, DashboardSquare01Icon, Route02Icon } from "@hugeicons/core-free-icons";
 import { Tabs } from "expo-router";
 import { useThemeColor } from "heroui-native";
 
@@ -31,6 +31,15 @@ export default function TabLayout() {
           title: "Overview",
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <Icon icon={DashboardSquare01Icon} size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="reports"
+        options={{
+          title: "Reports",
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+            <Icon icon={Alert01Icon} size={size} color={color} />
           ),
         }}
       />
