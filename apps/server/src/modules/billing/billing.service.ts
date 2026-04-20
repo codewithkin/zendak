@@ -3,6 +3,7 @@ import { env } from "@zendak/env/server";
 
 import { AppError } from "../../lib/errors";
 import { sendSubscriptionEmail } from "../../lib/mailer";
+import { notificationsService } from "../notifications/notifications.service";
 import type { CreateCheckoutInput, ActivatePlanInput } from "./billing.schema";
 import { billingRepository } from "./billing.repository";
 
@@ -60,6 +61,17 @@ export const billingService = {
 
 		// Mark payment as processed
 		await billingRepository.markPaymentProcessed(payment.id);
+
+		// Fire-and-forget: notify admins about plan activation
+		const plan = PLANS[payment.planName as PlanName];
+		notificationsService.notifyByRole({
+			businessId: payment.businessId,
+			roles: ["ADMIN"],
+			title: "Plan Activated",
+			message: `Your plan has been upgraded to ${plan.label}`,
+			type: "PLAN_ACTIVATED",
+			metadata: { planName: payment.planName },
+		}).catch(() => {});
 
 		// Send subscription confirmation email (fire-and-forget)
 		const user = await billingRepository.getUserById(userId);

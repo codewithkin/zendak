@@ -1,6 +1,7 @@
 import { AppError } from "../../lib/errors";
 import type { AuthUser } from "../../types";
 import { driversRepository } from "../drivers/drivers.repository";
+import { notificationsService } from "../notifications/notifications.service";
 import { trucksRepository } from "../trucks/trucks.repository";
 import type { CreateTripInput, UpdateTripInput } from "./trips.schema";
 import { tripsRepository } from "./trips.repository";
@@ -21,7 +22,31 @@ export const tripsService = {
 			throw AppError.badRequest(`Truck is not available (current status: ${truck.status})`);
 		}
 
-		return tripsRepository.create(input);
+		const trip = await tripsRepository.create(input);
+
+		// Fire-and-forget: notify driver + admins
+		tripsRepository.getDriverNotificationInfo(input.driverId).then((userInfo) => {
+			if (!userInfo) return;
+			notificationsService.notifyUser({
+				userId: userInfo.id,
+				title: "New Trip Assigned",
+				message: `Trip from ${input.origin} to ${input.destination}`,
+				type: "TRIP_ASSIGNED",
+				metadata: { tripId: trip.id },
+			});
+			if (userInfo.businessId) {
+				notificationsService.notifyByRole({
+					businessId: userInfo.businessId,
+					roles: ["ADMIN", "OPERATIONS"],
+					title: "New Trip Created",
+					message: `${userInfo.name} assigned: ${input.origin} → ${input.destination}`,
+					type: "TRIP_CREATED",
+					metadata: { tripId: trip.id },
+				});
+			}
+		}).catch(() => {});
+
+		return trip;
 	},
 
 	async findAll(user: AuthUser) {
@@ -81,7 +106,22 @@ export const tripsService = {
 
 		await trucksRepository.updateStatus(trip.truckId, "IN_TRANSIT");
 
-		return tripsRepository.updateStatus(id, "ACTIVE", { startedAt: new Date() });
+		const startedTrip = await tripsRepository.updateStatus(id, "ACTIVE", { startedAt: new Date() });
+
+		// Fire-and-forget: notify admins that trip started
+		tripsRepository.getDriverNotificationInfo(trip.driverId).then((userInfo) => {
+			if (!userInfo?.businessId) return;
+			notificationsService.notifyByRole({
+				businessId: userInfo.businessId,
+				roles: ["ADMIN", "OPERATIONS"],
+				title: "Trip Started",
+				message: `${userInfo.name} started trip: ${trip.origin} → ${trip.destination}`,
+				type: "TRIP_STARTED",
+				metadata: { tripId: id },
+			});
+		}).catch(() => {});
+
+		return startedTrip;
 	},
 
 	async complete(id: string) {
@@ -96,7 +136,22 @@ export const tripsService = {
 
 		await trucksRepository.updateStatus(trip.truckId, "AVAILABLE");
 
-		return tripsRepository.updateStatus(id, "COMPLETED", { completedAt: new Date() });
+		const completedTrip = await tripsRepository.updateStatus(id, "COMPLETED", { completedAt: new Date() });
+
+		// Fire-and-forget: notify admins + accountants
+		tripsRepository.getDriverNotificationInfo(trip.driverId).then((userInfo) => {
+			if (!userInfo?.businessId) return;
+			notificationsService.notifyByRole({
+				businessId: userInfo.businessId,
+				roles: ["ADMIN", "ACCOUNTANT"],
+				title: "Trip Completed",
+				message: `${userInfo.name} completed trip: ${trip.origin} → ${trip.destination}`,
+				type: "TRIP_COMPLETED",
+				metadata: { tripId: id },
+			});
+		}).catch(() => {});
+
+		return completedTrip;
 	},
 
 	async settle(id: string) {

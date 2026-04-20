@@ -3,6 +3,7 @@ import { sendDriverWelcomeEmail } from "../../lib/mailer";
 import { hashPassword } from "../../lib/password";
 import { generateReadablePassword } from "../../lib/password-generator";
 import { authRepository } from "../auth/auth.repository";
+import { notificationsService } from "../notifications/notifications.service";
 import type { CreateDriverInput, UpdateDriverInput } from "./drivers.schema";
 import { driversRepository } from "./drivers.repository";
 
@@ -40,6 +41,14 @@ export const driversService = {
 			workspaceName: "Zendak",
 			temporaryPassword: plainPassword,
 		});
+
+		// Fire-and-forget: welcome notification
+		notificationsService.notifyUser({
+			userId: user.id,
+			title: "Welcome to Zendak",
+			message: "Your driver account has been created. Check your email for login credentials.",
+			type: "DRIVER_WELCOME",
+		}).catch(() => {});
 
 		return driver;
 	},

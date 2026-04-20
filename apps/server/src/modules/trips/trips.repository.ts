@@ -95,4 +95,12 @@ export const tripsRepository = {
 	async findDriverByUserId(userId: string) {
 		return prisma.driver.findUnique({ where: { userId } });
 	},
+
+	async getDriverNotificationInfo(driverId: string) {
+		const driver = await prisma.driver.findUnique({
+			where: { id: driverId },
+			include: { user: { select: { id: true, name: true, businessId: true } } },
+		});
+		return driver?.user ?? null;
+	},
 };
