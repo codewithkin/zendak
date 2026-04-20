@@ -8,6 +8,7 @@ import { Sidebar } from "@/components/sidebar";
 import { TrialBanner } from "@/components/plan-gate";
 import { useMe } from "@/hooks/use-auth";
 import { useRoleGuard } from "@/hooks/use-role-guard";
+import { useSubscription } from "@/hooks/use-billing";
 
 export default function DashboardLayout({
   children,
@@ -15,12 +16,15 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user, isLoading, error } = useMe();
+  const { subscription, isLoading: subLoading } = useSubscription(
+    user?.businessId ?? null,
+  );
   const router = useRouter();
   const pathname = usePathname();
 
   useRoleGuard(user, pathname ?? "");
 
-  if (isLoading) {
+  if (isLoading || subLoading) {
     return (
       <div className="flex h-screen flex-col">
         <header className="flex h-14 items-center border-b bg-background px-6">
@@ -50,6 +54,26 @@ export default function DashboardLayout({
 
   if (user.role === "ADMIN" && !user.onboardedAt) {
     router.replace("/onboarding" as never);
+    return null;
+  }
+
+  // Redirect unpaid users to pricing
+  if (subscription) {
+    const hasActiveSub =
+      subscription.subscriptionStatus === "TRIAL" ||
+      subscription.subscriptionStatus === "ACTIVE";
+    const isTrialValid =
+      subscription.subscriptionStatus === "TRIAL" &&
+      subscription.trialEndsAt &&
+      new Date(subscription.trialEndsAt) > new Date();
+
+    if (!hasActiveSub || (subscription.subscriptionStatus === "TRIAL" && !isTrialValid)) {
+      router.replace("/pricing" as never);
+      return null;
+    }
+  } else if (!subLoading && user.role === "ADMIN") {
+    // No subscription data at all — redirect to pricing
+    router.replace("/pricing" as never);
     return null;
   }
 
