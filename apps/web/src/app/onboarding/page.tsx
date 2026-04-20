@@ -104,7 +104,7 @@ export default function OnboardingPage() {
       return;
     }
     if (user.onboardedAt) {
-      router.replace("/dashboard/admin" as never);
+      router.replace("/pricing" as never);
     }
   }, [user, userLoading, router]);
 
@@ -123,7 +123,7 @@ export default function OnboardingPage() {
         phone: form.phone ? `${form.countryCode} ${form.phone}` : undefined,
       });
       toast.success("Workspace set up successfully");
-      router.replace("/dashboard/admin" as never);
+      router.replace("/pricing" as never);
     } catch {
       toast.error("Failed to save business details. Please try again.");
     }
@@ -336,7 +336,7 @@ export default function OnboardingPage() {
                 disabled={isLoading}
                 className="flex-1"
               >
-                {isLoading ? "Launching…" : "Launch workspace"}
+                {isLoading ? "Launching…" : "Choose a plan"}
               </Button>
             )}
           </div>
@@ -596,7 +596,7 @@ function StepThankYou() {
         transition={{ delay: 0.3 }}
         className="mt-3 max-w-xs text-sm leading-relaxed text-neutral-500"
       >
-        Thanks for your patience — your workspace is ready to go. Hit launch and start managing your fleet, trips, and operations from one place.
+        Thanks for your patience — your workspace is ready. Next, pick a plan to start your free trial and unlock your fleet dashboard.
       </motion.p>
     </div>
   );
