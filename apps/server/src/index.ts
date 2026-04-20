@@ -6,14 +6,17 @@ import { logger } from "hono/logger";
 import { AppError } from "./lib/errors";
 import { authRoutes } from "./modules/auth/auth.routes";
 import { billingRoutes } from "./modules/billing/billing.routes";
+import { crashReportsRoutes } from "./modules/crash-reports/crash-reports.routes";
 import { driversRoutes } from "./modules/drivers/drivers.routes";
 import { expensesRoutes } from "./modules/expenses/expenses.routes";
+import { notificationsRoutes } from "./modules/notifications/notifications.routes";
 import { onboardingRoutes } from "./modules/onboarding/onboarding.routes";
 import { profitRoutes } from "./modules/profit/profit.routes";
 import { reportsRoutes } from "./modules/reports/reports.routes";
 import { revenueRoutes } from "./modules/revenue/revenue.routes";
 import { tripsRoutes } from "./modules/trips/trips.routes";
 import { trucksRoutes } from "./modules/trucks/trucks.routes";
+import { uploadsRoutes } from "./modules/uploads/uploads.routes";
 import { usersRoutes } from "./modules/users/users.routes";
 
 const app = new Hono();
@@ -43,6 +46,9 @@ app.route("/api/expenses", expensesRoutes);
 app.route("/api/revenue", revenueRoutes);
 app.route("/api/profit", profitRoutes);
 app.route("/api/users", usersRoutes);
+app.route("/api/uploads", uploadsRoutes);
+app.route("/api/notifications", notificationsRoutes);
+app.route("/api/crash-reports", crashReportsRoutes);
 
 // ─── Global Error Handler ───────────────────────────────
 app.onError((err, c) => {
