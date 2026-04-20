@@ -1,5 +1,5 @@
 import prisma from "@zendak/db";
-import type { PlanName } from "@zendak/plans";
+import type { PlanName, SubscriptionStatus } from "@zendak/plans";
 
 export const billingRepository = {
 	async createIntermediatePayment(data: {
@@ -48,6 +48,44 @@ export const billingRepository = {
 				subscriptionStatus: "ACTIVE",
 				planActivatedAt: new Date(),
 			},
+		});
+	},
+
+	async updateBusinessPolarIds(
+		businessId: string,
+		data: { polarCustomerId?: string; polarSubscriptionId?: string },
+	) {
+		return prisma.business.update({
+			where: { id: businessId },
+			data,
+		});
+	},
+
+	async updateBusinessSubscription(
+		businessId: string,
+		data: {
+			plan?: PlanName;
+			subscriptionStatus?: SubscriptionStatus;
+			trialEndsAt?: Date | null;
+			planActivatedAt?: Date | null;
+			polarSubscriptionId?: string;
+		},
+	) {
+		return prisma.business.update({
+			where: { id: businessId },
+			data,
+		});
+	},
+
+	async findBusinessByPolarCustomerId(polarCustomerId: string) {
+		return prisma.business.findFirst({
+			where: { polarCustomerId },
+		});
+	},
+
+	async findBusinessByPolarSubscriptionId(polarSubscriptionId: string) {
+		return prisma.business.findFirst({
+			where: { polarSubscriptionId },
 		});
 	},
 
