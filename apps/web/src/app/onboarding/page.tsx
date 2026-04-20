@@ -296,7 +296,7 @@ function FieldCard({
         {hint && <span className="text-neutral-400">({hint})</span>}
         {required && <span className="text-red-400">*</span>}
       </Label>
-      <div className="[&_input]:border-0 [&_input]:bg-transparent [&_input]:px-0 [&_input]:shadow-none [&_input]:outline-0 [&_input]:ring-0 [&_input:focus]:ring-0">
+      <div className="[&_input]:border-0 [&_input]:bg-transparent [&_input]:px-0 [&_input]:shadow-none [&_input]:outline-0 [&_input]:ring-0 [&_input:focus]:ring-0 [&_input]:text-neutral-900 [&_input]::placeholder:text-neutral-400">
         {children}
       </div>
     </div>
