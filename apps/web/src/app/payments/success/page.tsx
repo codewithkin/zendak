@@ -5,129 +5,40 @@ import {
 	ArrowRight01Icon,
 	CheckmarkCircle02Icon,
 	Loading03Icon,
-	Settings01Icon,
 } from "@hugeicons/core-free-icons";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { toast } from "sonner";
 
 import { Button } from "@zendak/ui/components/button";
 import { Icon } from "@zendak/ui/components/icon";
 
-import {
-	useActivatePlan,
-	useMarkPaymentPaid,
-	usePaymentStatus,
-} from "@/hooks/use-billing";
+import { useMe } from "@/hooks/use-auth";
+import { useSubscription } from "@/hooks/use-billing";
 
 function SuccessPageContent() {
 	const router = useRouter();
-	const searchParams = useSearchParams();
-	const paymentId = searchParams.get("intermediatePayment");
+	const { user, isLoading: userLoading } = useMe();
+	const { subscription, isLoading: subLoading } = useSubscription(
+		user?.businessId ?? null,
+	);
+	const [pollCount, setPollCount] = useState(0);
 
-	const { payment, isLoading, error } = usePaymentStatus(paymentId);
-	const { markPaid, isLoading: markingPaid } = useMarkPaymentPaid();
-	const { activatePlan, isLoading: activating } = useActivatePlan();
-	const [activated, setActivated] = useState(false);
-	const [activationError, setActivationError] = useState<string | null>(null);
+	const isActive =
+		subscription?.subscriptionStatus === "TRIAL" ||
+		subscription?.subscriptionStatus === "ACTIVE";
 
-	// Auto-mark as paid and activate when landing on the success page
+	// Poll subscription status until webhook processes it
 	useEffect(() => {
-		if (!payment || activated || activating) return;
+		if (isActive || pollCount > 20) return;
 
-		async function processPayment() {
-			if (!payment) return;
+		const timer = setTimeout(() => {
+			setPollCount((c) => c + 1);
+		}, 2000);
 
-			try {
-				// If not paid yet, mark as paid (simulating Polar webhook)
-				if (!payment.paid) {
-					await markPaid(payment.id);
-				}
+		return () => clearTimeout(timer);
+	}, [isActive, pollCount]);
 
-				// If not processed yet, activate the plan
-				if (!payment.processed) {
-					await activatePlan(payment.id);
-				}
-
-				setActivated(true);
-			} catch (err) {
-				setActivationError(
-					err instanceof Error ? err.message : "Failed to activate plan",
-				);
-			}
-		}
-
-		processPayment();
-	}, [payment, activated, activating, markPaid, activatePlan]);
-
-	// ── Error states ──
-	if (!paymentId) {
-		return (
-			<StatusLayout variant="error">
-				<h2 className="text-lg font-semibold">Invalid payment reference</h2>
-				<p className="text-sm text-muted-foreground">
-					No payment ID was provided. Please try the checkout process again.
-				</p>
-				<Button
-					variant="outline"
-					onClick={() => router.push("/pricing")}
-					className="mt-4"
-				>
-					Go to pricing
-				</Button>
-			</StatusLayout>
-		);
-	}
-
-	if (error) {
-		return (
-			<StatusLayout variant="error">
-				<h2 className="text-lg font-semibold">Payment not found</h2>
-				<p className="text-sm text-muted-foreground">
-					The payment record could not be found. It may have been removed or the ID
-					is incorrect.
-				</p>
-				<Button
-					variant="outline"
-					onClick={() => router.push("/pricing")}
-					className="mt-4"
-				>
-					Go to pricing
-				</Button>
-			</StatusLayout>
-		);
-	}
-
-	if (isLoading || !payment) {
-		return (
-			<StatusLayout variant="loading">
-				<Icon
-					icon={Loading03Icon}
-					size={32}
-					className="animate-spin text-primary"
-				/>
-				<p className="text-sm text-muted-foreground">Verifying payment...</p>
-			</StatusLayout>
-		);
-	}
-
-	if (activationError) {
-		return (
-			<StatusLayout variant="error">
-				<h2 className="text-lg font-semibold">Activation failed</h2>
-				<p className="text-sm text-muted-foreground">{activationError}</p>
-				<Button
-					variant="outline"
-					onClick={() => router.push("/pricing")}
-					className="mt-4"
-				>
-					Go to pricing
-				</Button>
-			</StatusLayout>
-		);
-	}
-
-	if (activating || markingPaid || !activated) {
+	if (userLoading || subLoading || (!isActive && pollCount <= 20)) {
 		return (
 			<StatusLayout variant="loading">
 				<Icon
@@ -136,13 +47,31 @@ function SuccessPageContent() {
 					className="animate-spin text-primary"
 				/>
 				<p className="text-sm text-muted-foreground">
-					Activating your {payment.plan.label} plan...
+					Activating your subscription...
 				</p>
 			</StatusLayout>
 		);
 	}
 
-	// ── Success state ──
+	if (!isActive) {
+		return (
+			<StatusLayout variant="error">
+				<h2 className="text-lg font-semibold">Activation pending</h2>
+				<p className="text-sm text-muted-foreground">
+					Your payment was received but your plan is still being activated.
+					This may take a moment — please refresh or contact support.
+				</p>
+				<Button
+					variant="outline"
+					onClick={() => router.push("/pricing")}
+					className="mt-4"
+				>
+					Go to pricing
+				</Button>
+			</StatusLayout>
+		);
+	}
+
 	return (
 		<StatusLayout variant="success">
 			<div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
@@ -151,27 +80,18 @@ function SuccessPageContent() {
 
 			<div className="space-y-1 text-center">
 				<h2 className="text-xl font-semibold">
-					Thank you for subscribing to the {payment.plan.label} plan
+					Welcome to the {subscription?.plan?.label ?? "your"} plan
 				</h2>
 				<p className="text-sm text-muted-foreground">
-					Your subscription is now active. All features and limits of the{" "}
-					{payment.plan.label} plan are unlocked.
+					Your trial is now active. All features are unlocked — start
+					managing your fleet.
 				</p>
 			</div>
 
-			<div className="flex flex-col gap-2 sm:flex-row">
-				<Button onClick={() => router.push("/dashboard/admin")}>
-					<Icon icon={ArrowRight01Icon} size={14} />
-					Go to Dashboard
-				</Button>
-				<Button
-					variant="outline"
-					onClick={() => router.push("/dashboard/admin")}
-				>
-					<Icon icon={Settings01Icon} size={14} />
-					Go to Settings
-				</Button>
-			</div>
+			<Button onClick={() => router.push("/dashboard/admin")}>
+				<Icon icon={ArrowRight01Icon} size={14} />
+				Go to Dashboard
+			</Button>
 		</StatusLayout>
 	);
 }
