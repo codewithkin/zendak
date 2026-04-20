@@ -52,9 +52,7 @@ const CONNECTIONS = [
 const TRUCK_OPTIONS = [
   { label: "1-10", value: 5 },
   { label: "10-20", value: 15 },
-  { label: "30-50", value: 40 },
-  { label: "50-100", value: 75 },
-  { label: "100+", value: 150 },
+  { label: "30+", value: 30 },
 ];
 
 const EMPLOYEE_OPTIONS = [
