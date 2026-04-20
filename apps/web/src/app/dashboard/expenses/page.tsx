@@ -93,6 +93,7 @@ function formatCurrency(value: string | number) {
 
 export default function ExpensesPage() {
   const [filterType, setFilterType] = useState<Expense["type"] | "">("");
+  const [search, setSearch] = useState("");
 
   const filters: ExpenseFilters = {};
   if (filterType) filters.type = filterType;
@@ -329,8 +330,14 @@ export default function ExpensesPage() {
         </Card>
       </div>
 
-      {/* Filter Bar */}
+      {/* Search & Filter Bar */}
       <div className="flex items-center gap-3">
+        <Input
+          placeholder="Search expenses..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-9 w-64 text-xs"
+        />
         <div className="w-48">
           <Select
             value={filterType}
@@ -363,7 +370,23 @@ export default function ExpensesPage() {
             <p className="py-8 text-center text-xs text-muted-foreground">
               No expenses are recorded yet. Log your first cost to track real margins.
             </p>
-          ) : (
+          ) : (() => {
+            const searchedExpenses = search
+              ? expenses.filter((e) => {
+                  const q = search.toLowerCase();
+                  return (
+                    e.type.toLowerCase().includes(q) ||
+                    (e.description?.toLowerCase().includes(q) ?? false) ||
+                    (e.truck?.plateNumber.toLowerCase().includes(q) ?? false) ||
+                    (e.driver?.user.name.toLowerCase().includes(q) ?? false)
+                  );
+                })
+              : expenses;
+            return searchedExpenses.length === 0 ? (
+              <p className="py-8 text-center text-xs text-muted-foreground">
+                No expenses match your search.
+              </p>
+            ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -378,7 +401,7 @@ export default function ExpensesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {expenses.map((expense) => (
+                {searchedExpenses.map((expense) => (
                   <TableRow key={expense.id}>
                     <TableCell className="font-medium">
                       {formatCurrency(expense.amount)}
@@ -417,7 +440,8 @@ export default function ExpensesPage() {
                 ))}
               </TableBody>
             </Table>
-          )}
+          );
+          })()}
         </CardContent>
       </Card>
     </div>

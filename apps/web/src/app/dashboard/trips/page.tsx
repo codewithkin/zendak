@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@zendak/ui/components/select";
+import { Input } from "@zendak/ui/components/input";
 import { Skeleton } from "@zendak/ui/components/skeleton";
 import {
   Table,
@@ -83,15 +84,21 @@ export default function TripsPage() {
 
   const [addOpen, setAddOpen] = useState(false);
   const [filterStatus, setFilterStatus] = useState<Trip["status"] | "">("");
+  const [search, setSearch] = useState("");
 
   const planned = trips.filter((t) => t.status === "PLANNED").length;
   const active = trips.filter((t) => t.status === "ACTIVE").length;
   const completed = trips.filter((t) => t.status === "COMPLETED").length;
   const settled = trips.filter((t) => t.status === "SETTLED").length;
 
-  const filteredTrips = filterStatus
-    ? trips.filter((t) => t.status === filterStatus)
-    : trips;
+  const filteredTrips = trips.filter((t) => {
+    if (filterStatus && t.status !== filterStatus) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      if (!t.origin.toLowerCase().includes(q) && !t.destination.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
 
   // Trip status distribution for pie chart
   const statusPieData = useMemo(() => [
@@ -287,8 +294,14 @@ export default function TripsPage() {
         </Card>
       </div>
 
-      {/* Status Filter */}
+      {/* Search & Status Filter */}
       <div className="flex items-center gap-3">
+        <Input
+          placeholder="Search by origin or destination..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-9 w-64 text-xs"
+        />
         <div className="w-48">
           <Select
             value={filterStatus}

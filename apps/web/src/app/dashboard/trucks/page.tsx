@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@zendak/ui/components/button";
 import { Badge } from "@zendak/ui/components/badge";
@@ -66,6 +67,7 @@ const statusVariant: Record<Truck["status"], "success" | "default" | "warning" |
 };
 
 export default function TrucksPage() {
+  const router = useRouter();
   const { trucks, isLoading, refetch } = useTrucks();
   const { updateTruck, isLoading: updating } = useUpdateTruck();
   const { deleteTruck, isLoading: deleting } = useDeleteTruck();
@@ -74,14 +76,20 @@ export default function TrucksPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [editingTruck, setEditingTruck] = useState<Truck | null>(null);
   const [filterStatus, setFilterStatus] = useState<Truck["status"] | "">("");
+  const [search, setSearch] = useState("");
 
   const available = trucks.filter((t) => t.status === "AVAILABLE").length;
   const inTransit = trucks.filter((t) => t.status === "IN_TRANSIT").length;
   const maintenance = trucks.filter((t) => t.status === "MAINTENANCE").length;
 
-  const filteredTrucks = filterStatus
-    ? trucks.filter((t) => t.status === filterStatus)
-    : trucks;
+  const filteredTrucks = trucks.filter((t) => {
+    if (filterStatus && t.status !== filterStatus) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      if (!t.plateNumber.toLowerCase().includes(q) && !t.model.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
 
   // Edit form state
   const [editPlateNumber, setEditPlateNumber] = useState("");
@@ -210,8 +218,14 @@ export default function TrucksPage() {
         </Card>
       </div>
 
-      {/* Status Filter */}
+      {/* Search & Status Filter */}
       <div className="flex items-center gap-3">
+        <Input
+          placeholder="Search by plate or model..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-9 w-64 text-xs"
+        />
         <div className="w-48">
           <Select
             value={filterStatus}
@@ -258,7 +272,11 @@ export default function TrucksPage() {
               </TableHeader>
               <TableBody>
                 {filteredTrucks.map((truck) => (
-                  <TableRow key={truck.id}>
+                  <TableRow
+                    key={truck.id}
+                    className="cursor-pointer"
+                    onClick={() => router.push(`/dashboard/trucks/${truck.id}`)}
+                  >
                     <TableCell className="font-medium">
                       {truck.plateNumber}
                     </TableCell>
@@ -270,7 +288,7 @@ export default function TrucksPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="ghost"
                           size="icon-xs"
