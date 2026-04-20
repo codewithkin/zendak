@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Alert01Icon,
   DashboardSquare01Icon,
   DeliveryTruck02Icon,
   Invoice01Icon,
@@ -35,6 +36,7 @@ const allNavItems: NavItem[] = [
   { label: "Trips", href: "/dashboard/trips", icon: MapsLocation01Icon },
   { label: "Expenses", href: "/dashboard/expenses", icon: Invoice01Icon },
   { label: "Finance", href: "/dashboard/finance", icon: Wallet02Icon },
+  { label: "Crash Reports", href: "/dashboard/crash-reports", icon: Alert01Icon },
   { label: "Users", href: "/dashboard/admin/users", icon: UserMultipleIcon },
 ];
 
@@ -48,11 +50,11 @@ function getNavItems(role: User["role"]): NavItem[] {
       );
     case "OPERATIONS":
       return allNavItems.filter((item) =>
-        ["Dashboard", "Trucks", "Drivers", "Trips"].includes(item.label),
+        ["Dashboard", "Trucks", "Drivers", "Trips", "Crash Reports"].includes(item.label),
       );
     case "DRIVER":
       return allNavItems.filter((item) =>
-        ["Dashboard", "Trips"].includes(item.label),
+        ["Dashboard", "Trips", "Crash Reports"].includes(item.label),
       );
     default:
       return [allNavItems[0]];
