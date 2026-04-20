@@ -1,7 +1,9 @@
 import "@/global.css";
 import { AlertCircleIcon } from "@hugeicons/core-free-icons";
-import { Stack, type ErrorBoundaryProps } from "expo-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Stack, useRouter, useSegments, type ErrorBoundaryProps } from "expo-router";
 import { HeroUINativeProvider } from "heroui-native";
+import { useEffect } from "react";
 import { Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -10,14 +12,39 @@ import { AppThemeProvider } from "@/contexts/app-theme-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
+import { useMe } from "@/src/hooks/use-auth";
+import { usePushToken } from "@/src/hooks/use-push-token";
+
+const queryClient = new QueryClient();
 
 export const unstable_settings = {
   initialRouteName: "(drawer)",
 };
 
-function StackLayout() {
+function AuthGate() {
+  const { data: user, isLoading, isError } = useMe();
+  const segments = useSegments();
+  const router = useRouter();
+
+  // Register push token when authenticated
+  usePushToken(!!user);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+    const isAuthenticated = !!user && !isError;
+
+    if (!isAuthenticated && !inAuthGroup) {
+      router.replace("/(auth)/sign-in");
+    } else if (isAuthenticated && inAuthGroup) {
+      router.replace("/(drawer)");
+    }
+  }, [user, isLoading, isError, segments, router]);
+
   return (
     <Stack screenOptions={{}}>
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
       <Stack.Screen name="modal" options={{ title: "Quick Action", presentation: "modal" }} />
     </Stack>
@@ -30,7 +57,9 @@ export default function Layout() {
       <KeyboardProvider>
         <AppThemeProvider>
           <HeroUINativeProvider>
-            <StackLayout />
+            <QueryClientProvider client={queryClient}>
+              <AuthGate />
+            </QueryClientProvider>
           </HeroUINativeProvider>
         </AppThemeProvider>
       </KeyboardProvider>
