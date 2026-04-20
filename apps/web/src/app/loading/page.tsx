@@ -1,6 +1,7 @@
 "use client";
 
 import { DeliveryTruck02Icon, Loading03Icon } from "@hugeicons/core-free-icons";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -42,8 +43,18 @@ export default function Loading() {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-8">
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex items-center justify-center gap-3">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="flex flex-col items-center gap-4"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="flex items-center justify-center gap-3"
+        >
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <Icon icon={DeliveryTruck02Icon} size={22} />
           </div>
@@ -53,21 +64,31 @@ export default function Loading() {
               Logistics business platform
             </span>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-primary">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+          className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-primary"
+        >
           <Icon icon={Loading03Icon} size={24} className="animate-spin" />
-        </div>
+        </motion.div>
 
-        <div className="space-y-1 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
+          className="space-y-1 text-center"
+        >
           <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
             Authenticating
           </p>
           <p className="max-w-xs text-xs text-muted-foreground">
             Routing you back into your Zendak workspace for fleet, trip, and finance control.
           </p>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
