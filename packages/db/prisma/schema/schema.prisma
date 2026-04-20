@@ -141,11 +141,13 @@ model Business {
   truckCount         Int                @default(0)
   employeeCount      Int                @default(0)
   phone              String?
-  plan               PlanName?
-  subscriptionStatus SubscriptionStatus @default(TRIAL)
-  trialEndsAt        DateTime?
-  planActivatedAt    DateTime?
-  storageUsedBytes   BigInt             @default(0)
+  plan                  PlanName?
+  subscriptionStatus    SubscriptionStatus @default(TRIAL)
+  trialEndsAt           DateTime?
+  planActivatedAt       DateTime?
+  polarCustomerId       String?
+  polarSubscriptionId   String?
+  storageUsedBytes      BigInt             @default(0)
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
