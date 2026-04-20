@@ -1,5 +1,5 @@
 import type { Context, Next } from "hono";
-import { type Feature, type PlanName, PLANS, hasFeature, isWithinLimit } from "@zendak/plans";
+import { type Feature, type PlanName, PLANS, hasFeature, isWithinLimit, formatStorage } from "@zendak/plans";
 
 import { AppError } from "../lib/errors";
 import type { AuthEnv } from "../types";
@@ -129,6 +129,40 @@ export function requireWithinLimit(resource: "maxTrucks" | "maxUsers" | "maxTrip
 			const limitStr = limit === Infinity ? "unlimited" : limit.toString();
 			throw AppError.forbidden(
 				`You've reached your limit of ${limitStr} ${limitLabel}. Please upgrade your plan.`,
+			);
+		}
+
+		await next();
+	};
+}
+
+/**
+ * Middleware that checks if the business has storage available for a file upload.
+ */
+export function requireStorageAvailable() {
+	return async (c: Context<AuthEnv>, next: Next) => {
+		const planName = c.get("planName") as PlanName | undefined;
+		const businessId = c.get("businessId") as string | undefined;
+
+		const effectivePlan: PlanName = planName ?? "FOUNDATION";
+
+		if (!businessId) {
+			await next();
+			return;
+		}
+
+		const business = await billingRepository.getBusinessById(businessId);
+		if (!business) {
+			await next();
+			return;
+		}
+
+		const maxBytes = PLANS[effectivePlan].limits.maxStorageBytes;
+		const usedBytes = Number(business.storageUsedBytes);
+
+		if (usedBytes >= maxBytes) {
+			throw AppError.forbidden(
+				`You've reached your storage limit of ${formatStorage(maxBytes)}. Please upgrade your plan.`,
 			);
 		}
 

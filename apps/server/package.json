@@ -10,11 +10,14 @@
     "start": "bun run dist/index.mjs"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.750.0",
+    "@aws-sdk/s3-request-presigner": "^3.750.0",
     "@node-rs/argon2": "^2.0.2",
     "@zendak/db": "workspace:*",
     "@zendak/env": "workspace:*",
     "@zendak/plans": "workspace:*",
     "dotenv": "catalog:",
+    "expo-server-sdk": "^3.13.0",
     "hono": "^4.8.2",
     "jose": "^6.2.2",
     "nodemailer": "^8.0.5",
