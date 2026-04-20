@@ -5,9 +5,8 @@ import {
   DeliveryTruck02Icon,
   LocationAdd01Icon,
   PhoneCall,
-  Route02Icon,
-  UserGroupIcon,
 } from "@hugeicons/core-free-icons";
+import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -43,18 +42,50 @@ const CONNECTIONS = [
   ["60%", "76%", "78%", "88%"],
 ];
 
+const TRUCK_OPTIONS = [
+  { label: "1-10", value: 5 },
+  { label: "10-20", value: 15 },
+  { label: "30-50", value: 40 },
+  { label: "50-100", value: 75 },
+  { label: "100+", value: 150 },
+];
+
+const EMPLOYEE_OPTIONS = [
+  { label: "1-10", value: 5 },
+  { label: "10-20", value: 15 },
+  { label: "30-50", value: 40 },
+  { label: "50-100", value: 75 },
+  { label: "100+", value: 150 },
+];
+
+const COUNTRIES = [
+  { code: "+1", name: "United States" },
+  { code: "+44", name: "United Kingdom" },
+  { code: "+254", name: "Kenya" },
+  { code: "+27", name: "South Africa" },
+  { code: "+256", name: "Uganda" },
+  { code: "+233", name: "Ghana" },
+  { code: "+234", name: "Nigeria" },
+  { code: "+255", name: "Tanzania" },
+];
+
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, isLoading: userLoading } = useMe();
   const { submitOnboarding, isLoading } = useOnboarding();
 
+  const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     businessName: "",
-    location: "",
-    truckCount: "",
-    employeeCount: "",
+    country: COUNTRIES[2],
+    address: "",
     phone: "",
+    truckCount: 0,
+    employeeCount: 0,
+    hasPreviousTMSExperience: null as boolean | null,
   });
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
 
   useEffect(() => {
     if (userLoading) return;
@@ -80,10 +111,10 @@ export default function OnboardingPage() {
     try {
       await submitOnboarding({
         businessName: form.businessName,
-        location: form.location,
-        truckCount: parseInt(form.truckCount, 10) || 0,
-        employeeCount: parseInt(form.employeeCount, 10) || 0,
-        phone: form.phone || undefined,
+        location: `${form.address}, ${form.country.name}`,
+        truckCount: form.truckCount,
+        employeeCount: form.employeeCount,
+        phone: form.phone ? `${form.country.code} ${form.phone}` : undefined,
       });
       toast.success("Workspace set up successfully");
       router.replace("/dashboard/admin" as never);
@@ -91,6 +122,25 @@ export default function OnboardingPage() {
       toast.error("Failed to save business details. Please try again.");
     }
   }
+
+  function nextStep() {
+    if (step < 4) setStep(step + 1);
+  }
+
+  function prevStep() {
+    if (step > 1) setStep(step - 1);
+  }
+
+  const filteredCountries = COUNTRIES.filter((c) =>
+    c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+    c.code.includes(countrySearch)
+  );
+
+  const isStep1Complete =
+    form.businessName.trim() && form.address.trim() && form.phone.trim();
+  const isStep2Complete = form.truckCount > 0;
+  const isStep3Complete = form.employeeCount > 0;
+  const isStep4Complete = form.hasPreviousTMSExperience !== null;
 
   if (userLoading) return null;
 
@@ -106,7 +156,10 @@ export default function OnboardingPage() {
           {CONNECTIONS.map(([x1, y1, x2, y2], i) => (
             <line
               key={i}
-              x1={x1} y1={y1} x2={x2} y2={y2}
+              x1={x1}
+              y1={y1}
+              x2={x2}
+              y2={y2}
               stroke="#ffffff"
               strokeWidth="1"
               strokeDasharray="4 6"
@@ -130,13 +183,17 @@ export default function OnboardingPage() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white">
             <span className="text-sm font-bold text-neutral-950">Z</span>
           </div>
-          <span className="text-sm font-semibold tracking-tight text-white">Zendak</span>
+          <span className="text-sm font-semibold tracking-tight text-white">
+            Zendak
+          </span>
         </div>
 
         {/* Bottom tagline */}
         <div className="relative z-10 space-y-2">
           <p className="text-2xl font-semibold leading-tight text-white">
-            Your fleet.<br />Your command centre.
+            Your fleet.
+            <br />
+            Your command centre.
           </p>
           <p className="text-sm text-neutral-400">
             Built for logistics teams that move fast and need real data.
@@ -147,122 +204,390 @@ export default function OnboardingPage() {
       {/* ── Right form panel ── */}
       <div className="flex flex-1 flex-col items-center justify-center overflow-auto bg-white px-6 py-12">
         <div className="w-full max-w-[440px]">
-
-          {/* Header */}
-          <div className="mb-10">
-            <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50">
-              <Icon icon={DeliveryTruck02Icon} size={18} className="text-neutral-700" />
-            </div>
-            <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
-              Set up your workspace
-            </h1>
-            <p className="mt-1.5 text-sm text-neutral-500">
-              Tell us about your logistics operation so Zendak can be tailored to your fleet.
-            </p>
+          {/* Progress indicator */}
+          <div className="mb-8 flex gap-2">
+            {[1, 2, 3, 4].map((s) => (
+              <div
+                key={s}
+                className={`h-1 flex-1 rounded-full transition-colors ${
+                  s <= step ? "bg-neutral-900" : "bg-neutral-200"
+                }`}
+              />
+            ))}
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit}>
-
-            {/* Field grid — business name + location */}
-            <div className="mb-4 grid grid-cols-2 gap-3">
-              <FieldCard
-                htmlFor="businessName"
-                icon={BuildingIcon}
-                label="Business name"
-                required
+          <AnimatePresence mode="wait">
+            {step === 1 && (
+              <motion.div
+                key="step1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <Input
-                  id="businessName"
-                  name="businessName"
-                  placeholder="Acme Logistics Ltd"
-                  value={form.businessName}
-                  onChange={handleChange}
-                  required
+                <StepBusinessData
+                  form={form}
+                  handleChange={handleChange}
+                  showCountryDropdown={showCountryDropdown}
+                  setShowCountryDropdown={setShowCountryDropdown}
+                  countrySearch={countrySearch}
+                  setCountrySearch={setCountrySearch}
+                  filteredCountries={filteredCountries}
+                  onSelectCountry={(country: typeof COUNTRIES[0]) => {
+                    setForm((prev) => ({ ...prev, country }));
+                    setShowCountryDropdown(false);
+                    setCountrySearch("");
+                  }}
+                  setForm={setForm}
                 />
-              </FieldCard>
+              </motion.div>
+            )}
 
-              <FieldCard
-                htmlFor="location"
-                icon={LocationAdd01Icon}
-                label="Primary location"
-                required
+            {step === 2 && (
+              <motion.div
+                key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <Input
-                  id="location"
-                  name="location"
-                  placeholder="Nairobi, Kenya"
-                  value={form.location}
-                  onChange={handleChange}
-                  required
-                />
-              </FieldCard>
-            </div>
-
-            {/* Field grid — trucks + employees */}
-            <div className="mb-4 grid grid-cols-2 gap-3">
-              <FieldCard
-                htmlFor="truckCount"
-                icon={DeliveryTruck02Icon}
-                label="Number of trucks"
-              >
-                <Input
-                  id="truckCount"
-                  name="truckCount"
-                  type="number"
-                  min="0"
-                  placeholder="0"
+                <StepTrucks
                   value={form.truckCount}
-                  onChange={handleChange}
+                  onSelect={(count) =>
+                    setForm((prev) => ({ ...prev, truckCount: count }))
+                  }
                 />
-              </FieldCard>
+              </motion.div>
+            )}
 
-              <FieldCard
-                htmlFor="employeeCount"
-                icon={UserGroupIcon}
-                label="Number of employees"
+            {step === 3 && (
+              <motion.div
+                key="step3"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <Input
-                  id="employeeCount"
-                  name="employeeCount"
-                  type="number"
-                  min="0"
-                  placeholder="0"
+                <StepEmployees
                   value={form.employeeCount}
-                  onChange={handleChange}
+                  onSelect={(count) =>
+                    setForm((prev) => ({ ...prev, employeeCount: count }))
+                  }
                 />
-              </FieldCard>
-            </div>
+              </motion.div>
+            )}
 
-            {/* Phone — full width */}
-            <div className="mb-8">
-              <FieldCard
-                htmlFor="phone"
-                icon={PhoneCall}
-                label="Business phone"
-                hint="optional"
-                fullWidth
+            {step === 4 && (
+              <motion.div
+                key="step4"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder="+254 700 000 000"
-                  value={form.phone}
-                  onChange={handleChange}
+                <StepTMSExperience
+                  value={form.hasPreviousTMSExperience}
+                  onSelect={(value) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      hasPreviousTMSExperience: value,
+                    }))
+                  }
                 />
-              </FieldCard>
-            </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Setting up workspace…" : "Launch my workspace"}
-            </Button>
-          </form>
+          {/* Navigation buttons */}
+          <div className="mt-8 flex gap-3">
+            {step > 1 && (
+              <Button variant="outline" onClick={prevStep} className="flex-1">
+                Back
+              </Button>
+            )}
+            {step < 4 && (
+              <Button
+                onClick={nextStep}
+                disabled={
+                  (step === 1 && !isStep1Complete) ||
+                  (step === 2 && !isStep2Complete) ||
+                  (step === 3 && !isStep3Complete)
+                }
+                className="flex-1"
+              >
+                Next
+              </Button>
+            )}
+            {step === 4 && (
+              <Button
+                onClick={handleSubmit}
+                disabled={!isStep4Complete || isLoading}
+                className="flex-1"
+              >
+                {isLoading ? "Launching…" : "Launch workspace"}
+              </Button>
+            )}
+          </div>
 
           <p className="mt-6 text-center text-xs text-neutral-400">
             You can update these details later from workspace settings.
           </p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Step 1: Business Data ──
+function StepBusinessData({
+  form,
+  handleChange,
+  showCountryDropdown,
+  setShowCountryDropdown,
+  countrySearch,
+  setCountrySearch,
+  filteredCountries,
+  onSelectCountry,
+  setForm,
+}: any) {
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
+          Business Information
+        </h1>
+        <p className="mt-1.5 text-sm text-neutral-500">
+          Tell us about your logistics company.
+        </p>
+      </div>
+
+      <form className="space-y-4">
+        <FieldCard
+          htmlFor="businessName"
+          icon={BuildingIcon}
+          label="Business name"
+          required
+        >
+          <Input
+            id="businessName"
+            name="businessName"
+            placeholder="Acme Logistics Ltd"
+            value={form.businessName}
+            onChange={handleChange}
+            required
+          />
+        </FieldCard>
+
+        <FieldCard
+          htmlFor="country"
+          icon={LocationAdd01Icon}
+          label="Primary country"
+          required
+        >
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+              className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-left text-sm text-neutral-900 outline-none transition-colors"
+            >
+              {form.country.name} ({form.country.code})
+            </button>
+            {showCountryDropdown && (
+              <div className="absolute top-full z-10 mt-2 w-full rounded-lg border border-neutral-200 bg-white shadow-lg">
+                <input
+                  type="text"
+                  placeholder="Search countries..."
+                  value={countrySearch}
+                  onChange={(e) => setCountrySearch(e.target.value)}
+                  className="w-full border-b border-neutral-200 px-3 py-2 text-sm text-neutral-900 outline-none"
+                />
+                <div className="max-h-48 overflow-y-auto">
+                  {filteredCountries.map((country: typeof COUNTRIES[0]) => (
+                    <button
+                      key={country.code}
+                      type="button"
+                      onClick={() => onSelectCountry(country)}
+                      className="w-full px-3 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-50"
+                    >
+                      {country.name} ({country.code})
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </FieldCard>
+
+        <FieldCard
+          htmlFor="address"
+          icon={LocationAdd01Icon}
+          label="Primary address"
+          required
+        >
+          <Input
+            id="address"
+            name="address"
+            placeholder="e.g., Nairobi"
+            value={form.address}
+            onChange={handleChange}
+            required
+          />
+        </FieldCard>
+
+        <FieldCard
+          htmlFor="phone"
+          icon={PhoneCall}
+          label="Business phone"
+          required
+        >
+          <div className="flex gap-2">
+            <div className="w-24">
+              <select
+                value={form.country.code}
+                onChange={(e) => {
+                  const selected = COUNTRIES.find((c) => c.code === e.target.value);
+                  if (selected) {
+                    setForm((prev: any) => ({ ...prev, country: selected }));
+                  }
+                }}
+                className="h-10 w-full rounded-lg border border-input bg-transparent px-2 text-sm text-neutral-900 outline-none transition-colors"
+              >
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.code}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              placeholder="700 000 000"
+              value={form.phone}
+              onChange={handleChange}
+              required
+              className="flex-1"
+            />
+          </div>
+        </FieldCard>
+      </form>
+    </div>
+  );
+}
+
+// ── Step 2: Trucks ──
+function StepTrucks({ value, onSelect }: any) {
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
+          How many trucks?
+        </h1>
+        <p className="mt-1.5 text-sm text-neutral-500">
+          Select the range that best fits your fleet.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {TRUCK_OPTIONS.map((option) => (
+          <motion.button
+            key={option.value}
+            type="button"
+            onClick={() => onSelect(option.value)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`rounded-xl border-2 p-4 text-center transition-all ${
+              value === option.value
+                ? "border-neutral-900 bg-neutral-900 text-white"
+                : "border-neutral-200 bg-white text-neutral-900 hover:border-neutral-300"
+            }`}
+          >
+            <p className="text-2xl font-semibold">{option.label}</p>
+            <p className="mt-1 text-xs text-neutral-500">trucks</p>
+          </motion.button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Step 3: Employees ──
+function StepEmployees({ value, onSelect }: any) {
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
+          Team size
+        </h1>
+        <p className="mt-1.5 text-sm text-neutral-500">
+          How many employees do you have?
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {EMPLOYEE_OPTIONS.map((option) => (
+          <motion.button
+            key={option.value}
+            type="button"
+            onClick={() => onSelect(option.value)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`rounded-xl border-2 p-4 text-center transition-all ${
+              value === option.value
+                ? "border-neutral-900 bg-neutral-900 text-white"
+                : "border-neutral-200 bg-white text-neutral-900 hover:border-neutral-300"
+            }`}
+          >
+            <p className="text-2xl font-semibold">{option.label}</p>
+            <p className="mt-1 text-xs text-neutral-500">employees</p>
+          </motion.button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Step 4: TMS Experience ──
+function StepTMSExperience({ value, onSelect }: any) {
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-xl font-semibold tracking-tight text-neutral-900">
+          Transport management experience
+        </h1>
+        <p className="mt-1.5 text-sm text-neutral-500">
+          Have you used transport management software before?
+        </p>
+      </div>
+
+      <div className="flex gap-3">
+        <motion.button
+          type="button"
+          onClick={() => onSelect(true)}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className={`flex-1 rounded-xl border-2 p-6 text-center transition-all ${
+            value === true
+              ? "border-neutral-900 bg-neutral-900 text-white"
+              : "border-neutral-200 bg-white text-neutral-900 hover:border-neutral-300"
+          }`}
+        >
+          <p className="text-lg font-semibold">Yes</p>
+        </motion.button>
+        <motion.button
+          type="button"
+          onClick={() => onSelect(false)}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className={`flex-1 rounded-xl border-2 p-6 text-center transition-all ${
+            value === false
+              ? "border-neutral-900 bg-neutral-900 text-white"
+              : "border-neutral-200 bg-white text-neutral-900 hover:border-neutral-300"
+          }`}
+        >
+          <p className="text-lg font-semibold">No</p>
+        </motion.button>
       </div>
     </div>
   );
@@ -290,7 +615,10 @@ function FieldCard({
     <div
       className={`rounded-xl border border-neutral-200 bg-neutral-50 p-4 transition-colors focus-within:border-neutral-400 focus-within:bg-white${fullWidth ? " col-span-2" : ""}`}
     >
-      <Label htmlFor={htmlFor} className="mb-3 flex items-center gap-1.5 text-xs font-medium text-neutral-500">
+      <Label
+        htmlFor={htmlFor}
+        className="mb-3 flex items-center gap-1.5 text-xs font-medium text-neutral-500"
+      >
         <Icon icon={icon} size={13} className="shrink-0" />
         {label}
         {hint && <span className="text-neutral-400">({hint})</span>}
