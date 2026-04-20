@@ -69,7 +69,7 @@ interface DataTableProps<T> {
 
 // ─── Component ──────────────────────────────────────────
 
-export function DataTable<T extends Record<string, unknown>>({
+export function DataTable<T extends object>({
   data,
   columns,
   isLoading = false,
@@ -103,13 +103,14 @@ export function DataTable<T extends Record<string, unknown>>({
   // Filtering
   const filtered = useMemo(() => {
     let result = [...data];
+    const getField = (row: T, key: string): unknown => (row as Record<string, unknown>)[key];
 
     // Text search
     if (search && searchKeys.length > 0) {
       const lower = search.toLowerCase();
       result = result.filter((row) =>
         searchKeys.some((key) => {
-          const val = row[key];
+          const val = getField(row, key as string);
           if (typeof val === "string") return val.toLowerCase().includes(lower);
           if (typeof val === "number") return val.toString().includes(lower);
           return false;
@@ -123,16 +124,15 @@ export function DataTable<T extends Record<string, unknown>>({
       const filterDef = filters.find((f) => f.key === key);
       if (filterDef?.type === "date") {
         result = result.filter((row) => {
-          const rowDate = row[key];
+          const rowDate = getField(row, key);
           if (!rowDate) return false;
           const d = new Date(rowDate as string).toISOString().split("T")[0];
           return d >= value;
         });
       } else if (filterDef?.type === "dateRange") {
-        // value format: "start|end"
         const [start, end] = value.split("|");
         result = result.filter((row) => {
-          const rowDate = row[key];
+          const rowDate = getField(row, key);
           if (!rowDate) return false;
           const d = new Date(rowDate as string).toISOString().split("T")[0];
           if (start && d < start) return false;
@@ -141,7 +141,7 @@ export function DataTable<T extends Record<string, unknown>>({
         });
       } else {
         result = result.filter((row) => {
-          const rowVal = row[key];
+          const rowVal = getField(row, key);
           return String(rowVal) === value;
         });
       }
