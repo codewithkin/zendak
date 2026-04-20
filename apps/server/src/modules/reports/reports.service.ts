@@ -139,6 +139,131 @@ export const reportsService = {
 			},
 		});
 	},
+
+	async getOperatingCosts(businessId: string, filters: ReportFilters) {
+		const startDate = filters.startDate ? new Date(filters.startDate) : undefined;
+		const endDate = filters.endDate ? new Date(filters.endDate) : undefined;
+
+		const expenses = await reportsRepository.getOperatingCosts({
+			startDate,
+			endDate,
+			truckId: filters.truckId,
+		});
+
+		let totalCost = 0;
+		const byTruck: Record<string, { plateNumber: string; model: string; total: number; count: number }> = {};
+
+		for (const exp of expenses) {
+			const amount = Number(exp.amount);
+			totalCost += amount;
+
+			if (exp.truck) {
+				const key = exp.truck.id;
+				if (!byTruck[key]) {
+					byTruck[key] = { plateNumber: exp.truck.plateNumber, model: exp.truck.model, total: 0, count: 0 };
+				}
+				byTruck[key].total += amount;
+				byTruck[key].count += 1;
+			}
+		}
+
+		return {
+			totalCost,
+			expenseCount: expenses.length,
+			byTruck: Object.entries(byTruck)
+				.map(([id, data]) => ({ id, ...data }))
+				.sort((a, b) => b.total - a.total),
+			expenses: expenses.map((e) => ({
+				id: e.id,
+				amount: Number(e.amount),
+				type: e.type,
+				description: e.description,
+				truck: e.truck,
+				driver: e.driver,
+				trip: e.trip,
+				createdAt: e.createdAt,
+			})),
+		};
+	},
+
+	async getCategoricalSpending(businessId: string, filters: ReportFilters) {
+		const startDate = filters.startDate ? new Date(filters.startDate) : undefined;
+		const endDate = filters.endDate ? new Date(filters.endDate) : undefined;
+
+		return reportsRepository.getCategoricalSpending({ startDate, endDate });
+	},
+
+	async generateOperatingCostsPdf(businessId: string, filters: ReportFilters) {
+		const companyName = await reportsRepository.getBusinessName(businessId);
+		const data = await this.getOperatingCosts(businessId, filters);
+		const startDate = filters.startDate ? new Date(filters.startDate) : undefined;
+		const endDate = filters.endDate ? new Date(filters.endDate) : undefined;
+		const dateRange = formatDateRange(startDate, endDate);
+
+		const rows = data.byTruck.map((t) => [
+			{ text: t.plateNumber, width: 100 },
+			{ text: t.model, width: 120 },
+			{ text: t.count.toString(), width: 80 },
+			{ text: `$${t.total.toFixed(2)}`, width: 100 },
+		]);
+
+		return generatePdfReport({
+			companyName,
+			title: "Operating Costs Report",
+			dateRange,
+			generatedAt: new Date().toLocaleString(),
+			summary: [
+				{ label: "Total Operating Cost", value: `$${data.totalCost.toFixed(2)}` },
+				{ label: "Total Expenses", value: data.expenseCount.toString() },
+				{ label: "Trucks with Costs", value: data.byTruck.length.toString() },
+			],
+			table: {
+				headers: [
+					{ text: "Truck", width: 100 },
+					{ text: "Model", width: 120 },
+					{ text: "Expenses", width: 80 },
+					{ text: "Total Cost", width: 100 },
+				],
+				rows,
+			},
+		});
+	},
+
+	async generateCategoricalSpendingPdf(businessId: string, filters: ReportFilters) {
+		const companyName = await reportsRepository.getBusinessName(businessId);
+		const categories = await this.getCategoricalSpending(businessId, filters);
+		const startDate = filters.startDate ? new Date(filters.startDate) : undefined;
+		const endDate = filters.endDate ? new Date(filters.endDate) : undefined;
+		const dateRange = formatDateRange(startDate, endDate);
+		const grandTotal = categories.reduce((sum, c) => sum + c.total, 0);
+
+		const rows = categories.map((c) => [
+			{ text: c.type, width: 120 },
+			{ text: c.count.toString(), width: 80 },
+			{ text: `$${c.total.toFixed(2)}`, width: 120 },
+			{ text: `${c.percentage.toFixed(1)}%`, width: 80 },
+		]);
+
+		return generatePdfReport({
+			companyName,
+			title: "Categorical Spending Report",
+			dateRange,
+			generatedAt: new Date().toLocaleString(),
+			summary: [
+				{ label: "Total Spending", value: `$${grandTotal.toFixed(2)}` },
+				{ label: "Categories", value: categories.length.toString() },
+			],
+			table: {
+				headers: [
+					{ text: "Category", width: 120 },
+					{ text: "Count", width: 80 },
+					{ text: "Total", width: 120 },
+					{ text: "% of Total", width: 80 },
+				],
+				rows,
+			},
+		});
+	},
 };
 
 function formatDateRange(start?: Date, end?: Date): string {

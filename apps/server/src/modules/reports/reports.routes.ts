@@ -21,4 +21,18 @@ reportsRoutes.get(
 	reportsController.fleetReport,
 );
 
+reportsRoutes.get(
+	"/operating-costs",
+	authMiddleware,
+	requireActiveSubscription(),
+	reportsController.operatingCosts,
+);
+
+reportsRoutes.get(
+	"/categorical-spending",
+	authMiddleware,
+	requireActiveSubscription(),
+	reportsController.categoricalSpending,
+);
+
 export { reportsRoutes };
