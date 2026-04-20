@@ -5,10 +5,11 @@ import {
   DeliveryTruck02Icon,
   LocationAdd01Icon,
   PhoneCall,
+  Search01Icon,
 } from "@hugeicons/core-free-icons";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@zendak/ui/components/button";
@@ -84,8 +85,6 @@ export default function OnboardingPage() {
     employeeCount: 0,
     hasPreviousTMSExperience: null as boolean | null,
   });
-  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-  const [countrySearch, setCountrySearch] = useState("");
 
   useEffect(() => {
     if (userLoading) return;
@@ -130,11 +129,6 @@ export default function OnboardingPage() {
   function prevStep() {
     if (step > 1) setStep(step - 1);
   }
-
-  const filteredCountries = COUNTRIES.filter((c) =>
-    c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
-    c.code.includes(countrySearch)
-  );
 
   const isStep1Complete =
     form.businessName.trim() && form.address.trim() && form.phone.trim();
@@ -228,15 +222,8 @@ export default function OnboardingPage() {
                 <StepBusinessData
                   form={form}
                   handleChange={handleChange}
-                  showCountryDropdown={showCountryDropdown}
-                  setShowCountryDropdown={setShowCountryDropdown}
-                  countrySearch={countrySearch}
-                  setCountrySearch={setCountrySearch}
-                  filteredCountries={filteredCountries}
                   onSelectCountry={(country: typeof COUNTRIES[0]) => {
                     setForm((prev) => ({ ...prev, country }));
-                    setShowCountryDropdown(false);
-                    setCountrySearch("");
                   }}
                   setForm={setForm}
                 />
@@ -342,11 +329,6 @@ export default function OnboardingPage() {
 function StepBusinessData({
   form,
   handleChange,
-  showCountryDropdown,
-  setShowCountryDropdown,
-  countrySearch,
-  setCountrySearch,
-  filteredCountries,
   onSelectCountry,
   setForm,
 }: any) {
@@ -386,38 +368,10 @@ function StepBusinessData({
             label="Primary country"
             required
           >
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-left text-sm text-neutral-900 outline-none transition-colors"
-              >
-                {form.country.name} ({form.country.code})
-              </button>
-              {showCountryDropdown && (
-                <div className="absolute top-full z-10 mt-2 w-full rounded-lg border border-neutral-200 bg-white shadow-lg">
-                  <input
-                    type="text"
-                    placeholder="Search countries..."
-                    value={countrySearch}
-                    onChange={(e) => setCountrySearch(e.target.value)}
-                    className="w-full border-b border-neutral-200 px-3 py-2 text-sm text-neutral-900 outline-none"
-                  />
-                  <div className="max-h-48 overflow-y-auto">
-                    {filteredCountries.map((country: typeof COUNTRIES[0]) => (
-                      <button
-                        key={country.code}
-                        type="button"
-                        onClick={() => onSelectCountry(country)}
-                        className="w-full px-3 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-50"
-                      >
-                        {country.name} ({country.code})
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            <CountrySelector
+              value={form.country}
+              onChange={onSelectCountry}
+            />
           </FieldCard>
 
           <FieldCard
@@ -630,6 +584,143 @@ function FieldCard({
       <div className="[&_input]:border-0 [&_input]:bg-transparent [&_input]:px-0 [&_input]:shadow-none [&_input]:outline-0 [&_input]:ring-0 [&_input:focus]:ring-0 [&_input]:text-neutral-900 [&_input]::placeholder:text-neutral-400">
         {children}
       </div>
+    </div>
+  );
+}
+
+// ── Country Selector Component ──
+function CountrySelector({
+  value,
+  onChange,
+}: {
+  value: (typeof COUNTRIES)[0];
+  onChange: (country: (typeof COUNTRIES)[0]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const filtered = COUNTRIES.filter((c) => {
+    const searchLower = search.toLowerCase();
+    return (
+      c.name.toLowerCase().includes(searchLower) ||
+      c.code.toLowerCase().includes(searchLower)
+    );
+  });
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        !inputRef.current?.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-left text-sm text-neutral-900 outline-none transition-colors hover:bg-neutral-50 focus:ring-2 focus:ring-neutral-200"
+      >
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            {value.name}
+            <span className="text-neutral-500">({value.code})</span>
+          </span>
+          <svg
+            className={`h-4 w-4 text-neutral-500 transition-transform ${
+              open ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+            />
+          </svg>
+        </div>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            ref={dropdownRef}
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-full z-50 mt-2 w-full rounded-lg border border-neutral-200 bg-white shadow-lg"
+          >
+            {/* Search input */}
+            <div className="relative border-b border-neutral-200 p-2">
+              <Icon
+                icon={Search01Icon}
+                size={16}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+              />
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder="Search by name or code..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-transparent pl-8 pr-3 py-2 text-xs text-neutral-900 outline-none placeholder:text-neutral-400"
+              />
+            </div>
+
+            {/* Country list */}
+            <div className="max-h-56 overflow-y-auto">
+              {filtered.length > 0 ? (
+                filtered.map((country) => (
+                  <motion.button
+                    key={country.code}
+                    type="button"
+                    onClick={() => {
+                      onChange(country);
+                      setOpen(false);
+                      setSearch("");
+                    }}
+                    whileHover={{ backgroundColor: "rgba(0, 0, 0, 0.03)" }}
+                    className={`w-full px-3 py-2.5 text-left text-sm transition-colors ${
+                      value.code === country.code
+                        ? "bg-neutral-100 text-neutral-900 font-medium"
+                        : "text-neutral-700 hover:bg-neutral-50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{country.name}</span>
+                      <span className="text-xs text-neutral-500">
+                        {country.code}
+                      </span>
+                    </div>
+                  </motion.button>
+                ))
+              ) : (
+                <div className="px-3 py-6 text-center text-xs text-neutral-400">
+                  No countries found
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
