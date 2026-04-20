@@ -51,4 +51,10 @@ export const trucksController = {
 		const result = await trucksService.search(q, page, limit, status);
 		return c.json(result);
 	},
+
+	async detail(c: Context) {
+		const id = c.req.param("id");
+		const detail = await trucksService.getDetail(id);
+		return c.json(detail);
+	},
 };

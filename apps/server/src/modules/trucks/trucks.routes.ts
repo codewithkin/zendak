@@ -12,6 +12,7 @@ trucksRoutes.use("/*", authMiddleware);
 trucksRoutes.post("/", requireRole("ADMIN"), trucksController.create);
 trucksRoutes.get("/search", requireRole("ADMIN", "OPERATIONS", "ACCOUNTANT"), trucksController.search);
 trucksRoutes.get("/", requireRole("ADMIN", "OPERATIONS", "ACCOUNTANT"), trucksController.findAll);
+trucksRoutes.get("/:id/detail", requireRole("ADMIN", "OPERATIONS", "ACCOUNTANT"), trucksController.detail);
 trucksRoutes.get("/:id", requireRole("ADMIN", "OPERATIONS", "ACCOUNTANT"), trucksController.findById);
 trucksRoutes.patch("/:id", requireRole("ADMIN"), trucksController.update);
 trucksRoutes.delete("/:id", requireRole("ADMIN"), trucksController.retire);

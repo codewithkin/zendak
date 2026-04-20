@@ -60,4 +60,42 @@ export const trucksRepository = {
 		});
 		return count > 0;
 	},
+
+	async getDetailById(id: string) {
+		return prisma.truck.findUnique({
+			where: { id },
+			include: {
+				trips: {
+					include: {
+						driver: { include: { user: { select: { name: true } } } },
+						expenses: true,
+						revenue: true,
+					},
+					orderBy: { createdAt: "desc" },
+				},
+				expenses: {
+					include: {
+						trip: { select: { id: true, origin: true, destination: true } },
+						driver: { select: { id: true, user: { select: { name: true } } } },
+					},
+					orderBy: { createdAt: "desc" },
+				},
+				serviceReminders: {
+					orderBy: { dueDate: "asc" },
+				},
+				crashReports: {
+					include: {
+						driver: { include: { user: { select: { name: true } } } },
+					},
+					orderBy: { createdAt: "desc" },
+				},
+				issues: {
+					include: {
+						reporter: { select: { name: true } },
+					},
+					orderBy: { createdAt: "desc" },
+				},
+			},
+		});
+	},
 };
