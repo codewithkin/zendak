@@ -1,6 +1,7 @@
 import type { Context } from "hono";
 
 import { AppError } from "../../lib/errors";
+import { generateCsv } from "../../lib/csv";
 import type { AuthEnv } from "../../types";
 import { reportsService } from "./reports.service";
 
@@ -58,6 +59,23 @@ export const reportsController = {
 			return c.body(pdf);
 		}
 
+		if (format === "csv") {
+			const data = await reportsService.getOperatingCosts(businessId, filters);
+			const csv = generateCsv(
+				["Type", "Amount", "Description", "Truck", "Date"],
+				data.expenses.map((e) => [
+					e.type,
+					e.amount.toFixed(2),
+					e.description ?? "",
+					e.truck?.plateNumber ?? "",
+					new Date(e.createdAt).toLocaleDateString(),
+				]),
+			);
+			c.header("Content-Type", "text/csv");
+			c.header("Content-Disposition", 'attachment; filename="operating-costs.csv"');
+			return c.body(csv);
+		}
+
 		const data = await reportsService.getOperatingCosts(businessId, filters);
 		return c.json(data);
 	},
@@ -78,6 +96,17 @@ export const reportsController = {
 			c.header("Content-Type", "application/pdf");
 			c.header("Content-Disposition", 'attachment; filename="categorical-spending.pdf"');
 			return c.body(pdf);
+		}
+
+		if (format === "csv") {
+			const data = await reportsService.getCategoricalSpending(businessId, filters);
+			const csv = generateCsv(
+				["Category", "Count", "Total", "Percentage"],
+				data.map((d) => [d.type, d.count.toString(), d.total.toFixed(2), `${d.percentage.toFixed(1)}%`]),
+			);
+			c.header("Content-Type", "text/csv");
+			c.header("Content-Disposition", 'attachment; filename="categorical-spending.csv"');
+			return c.body(csv);
 		}
 
 		const data = await reportsService.getCategoricalSpending(businessId, filters);
