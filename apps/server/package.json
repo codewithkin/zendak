@@ -18,6 +18,8 @@
     "@zendak/plans": "workspace:*",
     "dotenv": "catalog:",
     "expo-server-sdk": "^3.13.0",
+    "@polar-sh/hono": "^0.5.5",
+    "@polar-sh/sdk": "^0.47.0",
     "hono": "^4.8.2",
     "jose": "^6.2.2",
     "nodemailer": "^8.0.5",
